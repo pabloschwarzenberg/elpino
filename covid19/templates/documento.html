@@ -1,0 +1,14 @@
+{% extends  'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+        <h1 class="display-4">{{documento.titulo}}</h1>
+        <img src="{{documento.link}}" class="card-img-top" alt="...">
+        <a href="{{documento.archivo}}">Descargar</a>
+        <hr class="my-4">
+        {% if user.is_staff %}
+                <a class="btn btn-primary btn-lg" href="/documento/{{ documento.id }}/update" role="button">Actualizar</a>
+                <a class="btn btn-primary btn-lg" href="/documento/{{ documento.id }}/delete" role="button">Borrar</a>
+        {% endif %}
+</div>
+{% endblock %}

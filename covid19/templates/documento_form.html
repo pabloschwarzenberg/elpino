@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+        <table class="table table-borderless">
+        {% for field in form %}
+            <tr>
+                <td>{{ field.label_tag }}</td>
+                <td>
+                    {{field}}
+                    {% if field.help_text %}
+                        <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Guardar</button>
+            </td>
+        </tr>
+        </table>
+</form>
+
+{% endblock %}

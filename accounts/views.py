@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
+from covid19.models import Usuario
 
 SERVICIOS = (
         (1, 'Servicio 1'),
@@ -22,11 +23,11 @@ class SignUpForm(UserCreationForm):
     fecha_nacimiento = forms.DateField(required=True, help_text='dd/mm/yyyy')
     funcionario = forms.BooleanField(required=False, help_text='')
     servicio = forms.ChoiceField(choices=SERVICIOS,required=False, help_text='Opcional')
-    actividad = forms.ChoiceField(choices=ACTIVIDADES)
+    actividad = forms.ChoiceField(choices=ACTIVIDADES, required=False)
     email = forms.EmailField(max_length=254, help_text='')
 
     class Meta:
-        model = User
+        model = Usuario
         fields = ('username', 'nombre', 'apellido_paterno', 'apellido_materno',
         'fecha_nacimiento','funcionario','servicio','actividad','email','password1', 'password2', )
 

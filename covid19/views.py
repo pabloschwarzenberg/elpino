@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .models import Noticia
+from .models import Noticia, Estadistica, Documento
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -29,25 +29,30 @@ class HomeNoticiasView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
 
+class HomeContactosView(LoginRequiredMixin,TemplateView):
+    #permission_required='puede_buscar_cursos'
+    def get(self, request, **kwargs):
+        return render(request, 'contactos.html')
+
 class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.all()})
+        return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.all()[:1]})
 
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'algoritmos.html', {'algoritmos': Algoritmo.algoritmos.all()})
+        return render(request, 'algoritmos.html', {'algoritmos': Documento.documentos.filter(tipo=1)})
 
 class HomeBibliotecaView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.all()})
+        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=0)})
 
 class HomeVideosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'videos.html', {'videos': Video.videos.all()})
+        return render(request, 'videos.html', {'videos': Documento.documentos.filter(tipo=2)})
 
 class DetalleNoticiaView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
@@ -90,3 +95,23 @@ class NoticiaDelete(DeleteView):
     model = Noticia
     template_name='./noticia_confirm_delete.html'
     success_url = reverse_lazy('noticias')
+
+class DetalleDocumentoView(LoginRequiredMixin,TemplateView):
+    def get(self, request, **kwargs):
+        id=kwargs["pk"]
+        return render(request, 'documento.html', {'documento': Documento.documentos.get(id=id)})
+
+class DocumentoCreate(CreateView):
+    model = Documento
+    template_name='./documento_form.html'
+    fields = ['tipo','titulo','link','archivo']
+
+class DocumentoUpdate(UpdateView):
+    model = Documento
+    template_name='./documento_form.html'
+    fields = ['tipo','titulo','link','archivo']
+
+class DocumentoDelete(DeleteView):
+    model = Documento
+    template_name='./documento_confirm_delete.html'
+    success_url = reverse_lazy('biblioteca')

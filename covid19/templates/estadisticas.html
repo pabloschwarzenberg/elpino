@@ -1,0 +1,9 @@
+{% extends  'base.html' %}
+
+{% block content %}
+  <h1>Estadisticas</h1>
+
+  {% if user.is_staff %}
+    <a class="btn btn-primary btn-lg" href="/estadistica/create/" role="button">Agregar</a>
+  {% endif %}
+{% endblock %}

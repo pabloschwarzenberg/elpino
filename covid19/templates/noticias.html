@@ -1,0 +1,22 @@
+{% extends  'base.html' %}
+
+{% block content %}
+  <h1>Noticias</h1>
+  <div class="container">
+      <div class="row mt-5 justify-content-center">
+  {% for noticia in noticias %}
+        <div class="card" style="width: 18rem;">
+          <img src="{{noticia.imagen}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ noticia.fecha }}</h5>
+            <p class="card-text">{{ noticia.titulo }}</p>
+            <a href="/noticia/{{ noticia.id }}/" class="card-link">Ir</a>
+          </div>
+        </div>
+  {% endfor %}
+      </div>
+  </div>
+  {% if user.is_staff %}
+    <a class="btn btn-primary btn-lg" href="/noticia/create/" role="button">Agregar Noticia</a>
+  {% endif %}
+{% endblock %}

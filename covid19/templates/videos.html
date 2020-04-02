@@ -1,0 +1,17 @@
+{% extends  'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+  <h2>Videos</h2>
+  <div class="media border p-3">
+    <img src="img_avatar3.png" alt="John Doe" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+    <div class="media-body">
+      <h4>John Doe <small><i>Posted on February 19, 2016</i></small></h4>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>      
+    </div>
+  </div>
+</div>
+{% if user.is_staff %}
+  <a class="btn btn-primary btn-lg" href="/video/create/" role="button">Agregar</a>
+{% endif %}
+{% endblock %}

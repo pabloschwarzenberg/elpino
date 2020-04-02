@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Bienvenido al Hospital y CRS El Pino</h1>
+<br/>
+<br/>
+{% if not user.is_authenticated %}
+  <p>Para acceder al sistema debes ingresar tu usuario y clave o registrarte.</p>
+{% endif %}
+{% endblock %}

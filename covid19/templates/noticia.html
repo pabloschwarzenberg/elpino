@@ -1,0 +1,15 @@
+{% extends  'base.html' %}
+
+{% block content %}
+<img src="{{noticia.imagen}}" class="card-img-top" alt="...">
+<div class="jumbotron">
+        <h1 class="display-4">{{noticia.titulo}}</h1>
+        <p class="lead">{{curso.fecha}}</p>
+        <hr class="my-4">
+        <p>{{noticia.descripcion}}</p>
+        {% if user.is_staff %}
+                <a class="btn btn-primary btn-lg" href="/noticia/{{ noticia.id }}/update" role="button">Actualizar</a>
+                <a class="btn btn-primary btn-lg" href="/noticia/{{ noticia.id }}/delete" role="button">Borrar</a>
+        {% endif %}
+</div>
+{% endblock %}

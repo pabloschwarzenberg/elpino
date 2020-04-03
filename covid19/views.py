@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .models import Noticia, Estadistica, Documento
+from .models import Noticia, Estadistica, Documento, Contacto
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django import forms
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 class PermissionRequiredInGroupMixin(PermissionRequiredMixin):
     def has_permission(self):
@@ -28,11 +30,6 @@ class HomeNoticiasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
-
-class HomeContactosView(LoginRequiredMixin,TemplateView):
-    #permission_required='puede_buscar_cursos'
-    def get(self, request, **kwargs):
-        return render(request, 'contactos.html')
 
 class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -115,3 +112,37 @@ class DocumentoDelete(DeleteView):
     model = Documento
     template_name='./documento_confirm_delete.html'
     success_url = reverse_lazy('biblioteca')
+
+class CustomRadioSelect(forms.RadioSelect):
+    template_name="./customradio.html"
+
+class ContactoCreate(CreateView):
+    model=Contacto
+    template_name='./contacto_form.html'
+    fields=['contacto_confirmado','sintomas','contacto_10minutos','contacto_2horas']
+
+    def form_valid(self,form):
+        form.instance.usuario=self.request.user
+        form.instance.status=0
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        CHOICES = [(True,"Sí"),(False,"No")]
+        form = super(ContactoCreate, self).get_form(form_class)
+        form.fields['contacto_confirmado'].widget = CustomRadioSelect(choices=CHOICES)
+        form.fields['contacto_confirmado'].label = "¿Ha tenido Contacto con caso confirmado o sospechoso?"
+        form.fields['sintomas'].widget = CustomRadioSelect(choices=CHOICES)
+        form.fields['sintomas'].label = "¿Tiene Sintomas?"
+        form.fields['contacto_10minutos'].widget = CustomRadioSelect(choices=CHOICES)
+        form.fields['contacto_10minutos'].label = "¿Estuvo más de 10 minutos con la persona?"
+        form.fields['contacto_2horas'].widget = CustomRadioSelect(choices=CHOICES)
+        form.fields['contacto_2horas'].label = "¿Estuvo más de 2 horas con la persona en una habitación?"
+        return form
+
+    def get_success_url(self):
+        return reverse_lazy('contacto_evaluacion', kwargs={'pk': self.object.pk})
+
+class ContactoEvaluationView(LoginRequiredMixin,TemplateView):
+    def get(self, request, **kwargs):
+        pk=kwargs["pk"]
+        return render(request, 'evaluacion.html', {'contacto':Contacto.contactos.get(id=pk)})

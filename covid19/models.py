@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+import os
 
 # Create your models here.
 class Noticia(models.Model):
@@ -30,6 +31,10 @@ class Documento(models.Model):
     link=models.CharField(max_length=256)
     archivo=models.FileField(blank=True,null=True,upload_to='documents/%Y/%m/%d/')
     documentos=models.Manager()
+
+    def delete(self, *args, **kwargs):
+        os.remove(os.path.join(settings.MEDIA_ROOT, self.archivo.name))
+        super(Documento,self).delete(*args,**kwargs)
 
 class Estadistica(models.Model):
     casos_Q1=models.FloatField()
@@ -66,11 +71,12 @@ class Usuario(AbstractUser):
 
 class Contacto(models.Model):
     usuario=models.ForeignKey(Usuario,on_delete=models.CASCADE)
+    fecha_registro=models.DateTimeField(auto_now_add=True)
     contacto_confirmado=models.BooleanField()
     sintomas=models.BooleanField()
     contacto_10minutos=models.BooleanField()
     contacto_2horas=models.BooleanField()
     contactos=models.Manager()
-
+    status=models.IntegerField()
 
 

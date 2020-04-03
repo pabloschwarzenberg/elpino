@@ -22,8 +22,8 @@ class SignUpForm(UserCreationForm):
     apellido_materno = forms.CharField(max_length=30, required=True, help_text='')
     fecha_nacimiento = forms.DateField(required=True, help_text='dd/mm/yyyy')
     funcionario = forms.BooleanField(required=False, help_text='')
-    servicio = forms.ChoiceField(choices=SERVICIOS,required=False, help_text='Opcional')
-    actividad = forms.ChoiceField(choices=ACTIVIDADES, required=False)
+    servicio = forms.TypedChoiceField(choices=SERVICIOS,required=False, help_text='Opcional',empty_value=None)
+    actividad = forms.TypedChoiceField(choices=ACTIVIDADES, required=False,empty_value=None)
     email = forms.EmailField(max_length=254, help_text='')
 
     class Meta:

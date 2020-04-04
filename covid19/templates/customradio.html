@@ -1,10 +1,10 @@
 <div class="form-check-inline">
     <label class="form-check-label">
-        <input type="radio" class="form-check-input" name="{{widget.name}}">Sí
+        <input type="radio" class="form-check-input" name="{{widget.name}}" value="{{widget.attrs.value}}">{{widget.attrs.description}}
     </label>
 </div>
 <div class="form-check-inline">
     <label class="form-check-label">
-        <input type="radio" class="form-check-input" name="{{widget.name}}" checked>No
+        <input type="radio" class="form-check-input" name="{{widget.name}}" checked value="{{widget.attrs.value}}">{{widget.attrs.description}}
     </label>
 </div>

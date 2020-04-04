@@ -153,23 +153,25 @@ class ContactoCreate(CreateView):
             form.instance.status=0
         elif form.instance.sintomas and not form.instance.contacto_confirmado and not form.instance.contacto_10minutos and not form.instance.contacto_2horas:
             form.instance.status=1
+        elif not form.instance.sintomas and (form.instance.contacto_confirmado or form.instance.contacto_10minutos) and not form.instance.contacto_2horas:
+            form.instance.status=1
         elif form.instance.sintomas and (form.instance.contacto_confirmado or form.instance.contacto_10minutos) and not form.instance.contacto_2horas:
             form.instance.status=2
-        elif form.instance.sintomas and form.instance.contacto_2horas:
+        elif form.instance.contacto_2horas:
             form.instance.status=3
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
         CHOICES = [(True,"Sí"),(False,"No")]
         form = super(ContactoCreate, self).get_form(form_class)
-        form.fields['contacto_confirmado'].widget = CustomRadioSelect(choices=CHOICES)
-        form.fields['contacto_confirmado'].label = "¿Ha tenido Contacto con caso confirmado o sospechoso?"
-        form.fields['sintomas'].widget = CustomRadioSelect(choices=CHOICES)
+        form.fields['contacto_confirmado'].widget = forms.RadioSelect(choices=CHOICES)
+        form.fields['contacto_confirmado'].label = "¿Ha tenido contacto con caso confirmado o sospechoso?"
+        form.fields['sintomas'].widget = forms.RadioSelect(choices=CHOICES)
         form.fields['sintomas'].label = "¿Tiene Sintomas?"
-        form.fields['contacto_10minutos'].widget = CustomRadioSelect(choices=CHOICES)
-        form.fields['contacto_10minutos'].label = "¿Estuvo más de 10 minutos con la persona?"
-        form.fields['contacto_2horas'].widget = CustomRadioSelect(choices=CHOICES)
-        form.fields['contacto_2horas'].label = "¿Estuvo más de 2 horas con la persona en una habitación?"
+        form.fields['contacto_10minutos'].widget = forms.RadioSelect(choices=CHOICES)
+        form.fields['contacto_10minutos'].label = "¿Estuvo más de 10 minutos con una persona contagiada?"
+        form.fields['contacto_2horas'].widget = forms.RadioSelect(choices=CHOICES)
+        form.fields['contacto_2horas'].label = "¿Estuvo más de 2 horas con una persona contagiada en una habitación?"
         return form
 
     def get_success_url(self):

@@ -149,7 +149,14 @@ class ContactoCreate(CreateView):
 
     def form_valid(self,form):
         form.instance.usuario=self.request.user
-        form.instance.status=0
+        if not form.instance.sintomas and not form.instance.contacto_confirmado and not form.instance.contacto_10minutos and not form.instance.contacto_2horas:
+            form.instance.status=0
+        elif form.instance.sintomas and not form.instance.contacto_confirmado and not form.instance.contacto_10minutos and not form.instance.contacto_2horas:
+            form.instance.status=1
+        elif form.instance.sintomas and (form.instance.contacto_confirmado or form.instance.contacto_10minutos) and not form.instance.contacto_2horas:
+            form.instance.status=2
+        elif form.instance.sintomas and form.instance.contacto_2horas:
+            form.instance.status=3
         return super().form_valid(form)
 
     def get_form(self, form_class=None):

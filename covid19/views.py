@@ -35,7 +35,7 @@ class HomeNoticiasView(LoginRequiredMixin,TemplateView):
 class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.all()[:1]})
+        return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.latest('id')})
 
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -194,16 +194,46 @@ class EstadisticaCreate(CreateView):
         form.fields['hospital_T4'].label = "Casos Tipo 4 en el Hospital"
         return form
 
-def contagios_chart(request):
+def casos_chile_chart(request):
     labels = []
     data = []
 
+    meses={}
     queryset = Estadistica.estadisticas.all()
     for dato in queryset:
-        labels.append(dato.fecha.strftime("%m"))
-        data.append(dato.casos_Chile)
+        mes=dato.fecha.strftime("%m")
+        if mes in meses:
+            casos=meses[mes]
+            if casos<dato.casos_Chile:
+                meses[mes]=dato.casos_Chile
+        else:
+            meses[mes]=dato.casos_Chile
+    for mes in meses.keys():
+        labels.append(mes)
+        data.append(meses[mes])
     
     return JsonResponse(data={
         'labels': labels,
         'data': data,
+    })
+
+def casos_hospital_chart(request):
+    datasets = []
+
+    queryset = Estadistica.estadisticas.order_by("fecha")[:4]
+    labels = [ "Tipo 1", "Tipo 2", "Tipo 3", "Tipo 4" ]
+    for dato in queryset:
+        data = []
+        data.append(dato.hospital_T1)
+        data.append(dato.hospital_T2)
+        data.append(dato.hospital_T3)
+        data.append(dato.hospital_T4)
+        datasets.append({
+            'label': dato.fecha.strftime("%d-%m"),
+            'data': data
+        })
+    
+    return JsonResponse(data={
+        'labels': labels,
+        'datasets': datasets,
     })

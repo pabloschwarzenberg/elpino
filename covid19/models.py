@@ -39,13 +39,13 @@ class Documento(models.Model):
 
 class Estadistica(models.Model):
     fecha=models.DateField()
-    casos_Chile=models.FloatField()
-    hospital_T1=models.FloatField()
-    hospital_T2=models.FloatField()
-    hospital_T3=models.FloatField()
-    hospital_T4=models.FloatField()
-    hospital_contagios=models.FloatField()
-    hospital_lm=models.FloatField()
+    casos_Chile=models.IntegerField()
+    hospital_T1=models.IntegerField()
+    hospital_T2=models.IntegerField()
+    hospital_T3=models.IntegerField()
+    hospital_T4=models.IntegerField()
+    hospital_contagios=models.IntegerField()
+    hospital_lm=models.IntegerField()
     estadisticas=models.Manager()
 
 SERVICIOS = (

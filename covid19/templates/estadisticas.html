@@ -3,26 +3,58 @@
 {% block content %}
   <h1>Estadísticas</h1>
 
-  <div id="container" style="width: 75%;">
-    <canvas id="contagios_chart" data-url="{% url 'contagios_chart' %}"></canvas>
+  <div id="container" style="width: 100%;">
+    <div class="row">
+      <div class="col-sm-8">
+        <canvas id="contagios_chart" data-url="{% url 'casos_chile_chart' %}"></canvas>
+      </div>
+      <div class="col-sm-8">
+        <canvas id="contagios_hospital_chart" data-url="{% url 'casos_hospital_chart' %}"></canvas>
+      </div>
+    </div>
   </div>
+  <table width="100%">
+    <tr>
+      <td align="center">
+        <strong style="font-size: xxx-large;">{{estadisticas.hospital_contagios}}</strong>
+      </td>
+      <td align="center">
+        <strong style="font-size: xxx-large;">{{estadisticas.hospital_lm}}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        FUNCIONARIOS
+      </td>
+      <td align="center">
+        FUNCIONARIOS
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        CONTAGIADOS
+      </td>
+      <td align="center">
+        CON LM
+      </td>
+    </tr>
+  </table>
   <script>
 
     $(function () {
 
-      var $populationChart = $("#contagios_chart");
+      var $contagiosChart = $("#contagios_chart");
       $.ajax({
-        url: $populationChart.data("url"),
+        url: $contagiosChart.data("url"),
         success: function (data)
         {
-          var ctx = $populationChart[0].getContext("2d");
+          var ctx = $contagiosChart[0].getContext("2d");
           new Chart(ctx,
           {
             type: 'pie',
             data: {
               datasets: [{
                 data: data.data,
-                backgroundColor: ['#696969', '#808080', '#A9A9A9', '#C0C0C0', '#D3D3D3'],
                 label: 'Mes'
               }],
               labels: data.labels
@@ -31,18 +63,52 @@
               responsive: true,
               title: {
                 display: true,
-                text: 'Contagios en Chile'
+                text: 'Casos en Chile'
               },
               legend: {
-                display: true,
-                labels: {
-                  fontColor: 'rgb(255, 99, 132)'
+                display: true
+              },
+              plugins: {
+                colorschemes: {
+                scheme: 'brewer.Paired12'
                 }
               }
             }
           });
         }
       });
+
+      var $contagiosHospitalChart = $("#contagios_hospital_chart");
+      $.ajax({
+        url: $contagiosHospitalChart.data("url"),
+        success: function (data)
+        {
+          var ctx = $contagiosHospitalChart[0].getContext("2d");
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: data.labels,
+              datasets: data.datasets  
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Casos Hospital El Pino'
+              },
+              plugins: {
+                colorschemes: {
+                scheme: 'brewer.Paired12'
+                }
+              }
+            }
+          });
+        }
+      });
+    
     });
   </script>
 

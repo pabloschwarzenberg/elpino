@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^noticia/(?P<pk>\d+)/delete/$', views.NoticiaDelete.as_view(success_url='/noticias/'), name='noticia_delete'),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('contagios_chart/', views.contagios_chart, name='contagios_chart'),
+    path('casos_chile_chart/', views.casos_chile_chart, name='casos_chile_chart'),
+    path('casos_hospital_chart/', views.casos_hospital_chart, name='casos_hospital_chart'),
 ]

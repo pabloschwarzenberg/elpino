@@ -3,8 +3,27 @@
 {% block content %}
 <div class="jumbotron">
         <h1 class="display-4">{{documento.titulo}}</h1>
-        <img src="{{documento.link}}" class="card-img-top" alt="...">
-        <a href="{{documento.archivo.url}}">Descargar</a>
+        {% if documento.tipo == 0 %}
+                {% if documento.link %}
+                        <a href="{{documento.link}}" class="card-img-top">Descargar</a>
+                {% else %}
+                        <a href="{{documento.archivo.url}}" class="card-img-top">Descargar</a>
+                {% endif %}
+        {% endif %}
+        {% if documento.tipo == 1 %}
+                {% if documento.link %}
+                        <img src="{{documento.link}}" class="card-img-top" alt="...">
+                {% else %}
+                        <a href="{{documento.archivo.url}}">Descargar</a>
+                {% endif %}
+        {% endif %}
+        {% if documento.link and documento.tipo == 2 %}
+                <iframe width="560" height="315"
+                        src="https://www.youtube.com/embed/{{documento.link}}"
+                        frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                </iframe>
+        {% endif %}
         <hr class="my-4">
         {% if user.is_staff %}
                 <a class="btn btn-primary btn-lg" href="/documento/{{ documento.id }}/update" role="button">Actualizar</a>

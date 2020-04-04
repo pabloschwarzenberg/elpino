@@ -8,6 +8,7 @@ from django.urls import reverse_lazy, reverse
 from django import forms
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.http import JsonResponse
 
 class PermissionRequiredInGroupMixin(PermissionRequiredMixin):
     def has_permission(self):
@@ -39,17 +40,17 @@ class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'algoritmos.html', {'algoritmos': Documento.documentos.filter(tipo=1)})
+        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=1),'titulo': 'Algoritmos'})
 
 class HomeBibliotecaView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=0)})
+        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.all(), 'titulo': 'Biblioteca'})
 
 class HomeVideosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'videos.html', {'videos': Documento.documentos.filter(tipo=2)})
+        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=2), 'titulo': 'Videos'})
 
 class DetalleNoticiaView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
@@ -98,12 +99,37 @@ class DetalleDocumentoView(LoginRequiredMixin,TemplateView):
         id=kwargs["pk"]
         return render(request, 'documento.html', {'documento': Documento.documentos.get(id=id)})
 
-class DocumentoCreate(CreateView):
+class DocumentValidationMixin:
+    def form_valid(self,form):
+        if form.cleaned_data["tipo"] == 2:
+            link=form.cleaned_data["link"]
+            if not link:
+                form.add_error("link","Para videos debe indicar el link a youtube")
+                return self.form_invalid(form)
+            else:
+                p=link.rfind("/")
+                link=link[p+1:]
+                if(p==-1) or link=="":
+                    form.add_error("link","El link ingresado no es válido")
+                    return self.form_invalid(form)
+                print(link)
+                form.instance.link=link
+            if form.cleaned_data["archivo"]:
+                form.add_error("link","No puede subir archivos de video, por favor indique el link a youtube")
+                return self.form_invalid(form)
+
+        if not form.cleaned_data["link"] and not form.cleaned_data["archivo"]:
+            form.add_error("archivo","Debe indicar al menos un link o un archivo")
+            return self.form_invalid(form)
+        
+        return super().form_valid(form)
+
+class DocumentoCreate(DocumentValidationMixin,CreateView):
     model = Documento
     template_name='./documento_form.html'
     fields = ['tipo','titulo','link','archivo']
-
-class DocumentoUpdate(UpdateView):
+   
+class DocumentoUpdate(DocumentValidationMixin,UpdateView):
     model = Documento
     template_name='./documento_form.html'
     fields = ['tipo','titulo','link','archivo']
@@ -146,3 +172,38 @@ class ContactoEvaluationView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         pk=kwargs["pk"]
         return render(request, 'evaluacion.html', {'contacto':Contacto.contactos.get(id=pk)})
+
+class EstadisticaCreate(CreateView):
+    model = Estadistica
+    template_name='./estadistica_form.html'
+    fields = ['fecha', 'casos_Chile', 'hospital_T1', 'hospital_T2', 'hospital_T3', 'hospital_T4', 'hospital_contagios',
+    'hospital_lm']
+
+    def get_form(self, form_class=None):
+        form = super(EstadisticaCreate, self).get_form(form_class)
+        form.fields['fecha'].input_formats=['%d/%m/%Y']
+        form.fields['fecha'].widget = forms.DateTimeInput(attrs={
+            'class': 'datetimepicker-input',
+            'data-target': '#datetimepicker1'})
+        form.fields['casos_Chile'].label = "Cantidad de casos en Chile"
+        form.fields['hospital_contagios'].label = "Cantidad de Contagios en el Hospital"
+        form.fields['hospital_lm'].label = "Cantidad de LM en el Hospital"
+        form.fields['hospital_T1'].label = "Casos Tipo 1 en el Hospital"
+        form.fields['hospital_T2'].label = "Casos Tipo 2 en el Hospital"
+        form.fields['hospital_T3'].label = "Casos Tipo 3 en el Hospital"
+        form.fields['hospital_T4'].label = "Casos Tipo 4 en el Hospital"
+        return form
+
+def contagios_chart(request):
+    labels = []
+    data = []
+
+    queryset = Estadistica.estadisticas.all()
+    for dato in queryset:
+        labels.append(dato.fecha.strftime("%m"))
+        data.append(dato.casos_Chile)
+    
+    return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })

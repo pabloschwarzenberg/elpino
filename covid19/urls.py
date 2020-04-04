@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^$',views.HomePageView.as_view(),name="index"),
     url(r'noticias/', views.HomeNoticiasView.as_view(),name="noticias"),
     url(r'estadisticas/', views.HomeEstadisticasView.as_view(),name="estadisticas"),
+    url(r'^estadistica/create/$', views.EstadisticaCreate.as_view(success_url='/estadisticas/'), name='estadistica_create'),
     url(r'contacto/', views.ContactoCreate.as_view(),name="contacto"),
     re_path(r'^evaluacion/(?P<pk>\d+)/$', views.ContactoEvaluationView.as_view(),name="contacto_evaluacion"),
     url(r'algoritmos/', views.HomeAlgoritmosView.as_view(),name="algoritmos"),
@@ -22,4 +23,5 @@ urlpatterns = [
     url(r'^noticia/(?P<pk>\d+)/delete/$', views.NoticiaDelete.as_view(success_url='/noticias/'), name='noticia_delete'),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('contagios_chart/', views.contagios_chart, name='contagios_chart'),
 ]

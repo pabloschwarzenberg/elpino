@@ -28,19 +28,18 @@ class Documento(models.Model):
         default=ARCHIVO,
     )
     titulo=models.CharField(max_length=128)
-    link=models.CharField(max_length=256)
+    link=models.CharField(max_length=256,blank=True,null=True)
     archivo=models.FileField(blank=True,null=True,upload_to='documents/%Y/%m/%d/')
     documentos=models.Manager()
 
     def delete(self, *args, **kwargs):
-        os.remove(os.path.join(settings.MEDIA_ROOT, self.archivo.name))
+        if(self.archivo):
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.archivo.name))
         super(Documento,self).delete(*args,**kwargs)
 
 class Estadistica(models.Model):
-    casos_Q1=models.FloatField()
-    casos_Q2=models.FloatField()
-    casos_Q3=models.FloatField()
-    casos_Q4=models.FloatField()
+    fecha=models.DateField()
+    casos_Chile=models.FloatField()
     hospital_T1=models.FloatField()
     hospital_T2=models.FloatField()
     hospital_T3=models.FloatField()

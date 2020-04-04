@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c4hr++b6v$@s+n!_wc0xbvrpuzei1hjxa^49p+4tpbd-q@+hkn'
+SECRET_KEY = os.environ.get('SECRET_KEY','c4hr++b6v$@s+n!_wc0xbvrpuzei1hjxa^49p+4tpbd-q@+hkn')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -80,6 +80,18 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'elpino',
+#        'USER': 'elpino',
+#        'PASSWORD': 'Secret.123',
+#        'DEFAULT-CHARACTER-SET': 'utf8',
+#        'HOST': '127.0.0.1',
+#        'PORT': '3306',
+#        'TEST': {
+#            'NAME': 'elpino_test'
+#        }
+#    }
 }
 
 
@@ -129,3 +141,8 @@ LOGOUT_REDIRECT_URL = 'index'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_ROOT = './static/'
+ALLOWED_HOSTS = ['*']
+USE_X_FORWARDED_HOST=True
+USE_X_FORWARDED_PORT=True

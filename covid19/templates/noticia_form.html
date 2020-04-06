@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
         <table class="table table-borderless">
@@ -17,12 +17,13 @@
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
                         </div>
-                        <script>
+                        <script type="text/javascript">
                             $(function () {
-                              $("#datetimepicker1").datetimepicker();
+                                $('#datetimepicker1').datetimepicker({
+                                    format: 'DD/MM/YYYY hh:mm A'
+                                });
                             });
-                        </script>
-                    {% else %}
+                        </script>                    {% else %}
                         {{field}}
                     {% endif %}
                     {% if field.help_text %}

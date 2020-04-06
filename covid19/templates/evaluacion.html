@@ -4,8 +4,8 @@
 
 <div class="jumbotron">
     <h1 class="display-4">Evaluación</h1>
-    <p class="lead">Nivel de Riesgo {{contacto.status}}</p>
     <hr class="my-4">
+    {% if contacto.status == 0 %}
     <p>SE RECOMIENDA:
         MANTENER LAS EPP SEGÚN DETERMINAN LAS
         RECOMENDACIONES DEL EQUIPO ASESOR DEL
@@ -13,6 +13,10 @@
         NOTIFICAR EN CASO DE LA PRESENCIA DE SINTOMAS A
         SU JEFE DIRECTO.
     </p>
+    {% else %}
+    <p>Contáctese con su jefe directo para que defina si debe tomarse examen o debe irse a su domicilio en cuarentena.
+    </p>
+    {% endif %}
 </div>
 
 {% endblock %}

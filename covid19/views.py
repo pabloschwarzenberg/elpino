@@ -35,7 +35,10 @@ class HomeNoticiasView(LoginRequiredMixin,TemplateView):
 class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.latest('id')})
+        try:
+            return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.latest('id')})
+        except:
+            return render(request, 'estadisticas.html', {'estadisticas': {'confirmados_Hospital':0,'hospital_contagios':0}})
 
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -66,10 +69,9 @@ class NoticiaCreate(CreateView):
         form = super(NoticiaCreate, self).get_form(form_class)
         form.fields['fecha'].input_formats=['%m/%d/%Y %H:%M %p']
         form.fields['fecha'].widget = forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input',
+            'class': 'datetimepicker-input',
             'data-target': '#datetimepicker1'})
         form.fields['titulo'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 2})
-        form.fields['imagen'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 3})
         form.fields['descripcion'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 15})
         return form
 
@@ -82,10 +84,9 @@ class NoticiaUpdate(UpdateView):
         form = super(NoticiaUpdate, self).get_form(form_class)
         form.fields['fecha'].input_formats=['%m/%d/%Y %H:%M %p']
         form.fields['fecha'].widget = forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input',
+            'class': 'datetimepicker-input',
             'data-target': '#datetimepicker1'})
         form.fields['titulo'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 2})
-        form.fields['imagen'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 3})
         form.fields['descripcion'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 15})
         return form
 
@@ -112,7 +113,6 @@ class DocumentValidationMixin:
                 if(p==-1) or link=="":
                     form.add_error("link","El link ingresado no es válido")
                     return self.form_invalid(form)
-                print(link)
                 form.instance.link=link
             if form.cleaned_data["archivo"]:
                 form.add_error("link","No puede subir archivos de video, por favor indique el link a youtube")
@@ -151,25 +151,19 @@ class ContactoCreate(CreateView):
         form.instance.usuario=self.request.user
         if not form.instance.sintomas and not form.instance.contacto_confirmado and not form.instance.contacto_10minutos and not form.instance.contacto_2horas:
             form.instance.status=0
-        elif form.instance.sintomas and not form.instance.contacto_confirmado and not form.instance.contacto_10minutos and not form.instance.contacto_2horas:
+        else:
             form.instance.status=1
-        elif not form.instance.sintomas and (form.instance.contacto_confirmado or form.instance.contacto_10minutos) and not form.instance.contacto_2horas:
-            form.instance.status=1
-        elif form.instance.sintomas and (form.instance.contacto_confirmado or form.instance.contacto_10minutos) and not form.instance.contacto_2horas:
-            form.instance.status=2
-        elif form.instance.contacto_2horas:
-            form.instance.status=3
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
         CHOICES = [(True,"Sí"),(False,"No")]
         form = super(ContactoCreate, self).get_form(form_class)
         form.fields['contacto_confirmado'].widget = forms.RadioSelect(choices=CHOICES)
-        form.fields['contacto_confirmado'].label = "¿Ha tenido contacto con caso confirmado o sospechoso?"
+        form.fields['contacto_confirmado'].label = "¿Ha tenido contacto con un caso confirmado o sospechoso?"
         form.fields['sintomas'].widget = forms.RadioSelect(choices=CHOICES)
-        form.fields['sintomas'].label = "¿Tiene Sintomas?"
+        form.fields['sintomas'].label = "¿Tiene Sintomas Respiratorios?"
         form.fields['contacto_10minutos'].widget = forms.RadioSelect(choices=CHOICES)
-        form.fields['contacto_10minutos'].label = "¿Estuvo más de 10 minutos con una persona contagiada?"
+        form.fields['contacto_10minutos'].label = "¿Estuvo 15 minutos cara a cara a menos de 1 metro de una persona contagiada?"
         form.fields['contacto_2horas'].widget = forms.RadioSelect(choices=CHOICES)
         form.fields['contacto_2horas'].label = "¿Estuvo más de 2 horas con una persona contagiada en una habitación?"
         return form
@@ -185,8 +179,8 @@ class ContactoEvaluationView(LoginRequiredMixin,TemplateView):
 class EstadisticaCreate(CreateView):
     model = Estadistica
     template_name='./estadistica_form.html'
-    fields = ['fecha', 'casos_Chile', 'hospital_T1', 'hospital_T2', 'hospital_T3', 'hospital_T4', 'hospital_contagios',
-    'hospital_lm']
+    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
+    'hospital_TOTAL', 'hospital_contagios', 'hospital_lm']
 
     def get_form(self, form_class=None):
         form = super(EstadisticaCreate, self).get_form(form_class)
@@ -194,54 +188,52 @@ class EstadisticaCreate(CreateView):
         form.fields['fecha'].widget = forms.DateTimeInput(attrs={
             'class': 'datetimepicker-input',
             'data-target': '#datetimepicker1'})
-        form.fields['casos_Chile'].label = "Cantidad de casos en Chile"
-        form.fields['hospital_contagios'].label = "Cantidad de Contagios en el Hospital"
+        form.fields['contagios_Chile'].label = "Cantidad de contagios en Chile"
+        form.fields['confirmados_Hospital'].label = "Cantidad de Casos Confirmados en el Hospital"
+        form.fields['examenes_Hospital'].label = "Cantidad de Exámenes tomados a la fecha en el Hospital"
+        form.fields['hospital_UPC'].label = "Pacientes hospitalizados en UPC"
+        form.fields['hospital_VMI'].label = "Pacientes hospitalizados en VMI"
+        form.fields['hospital_BASICA'].label = "Pacientes hospitalizados en Cama Básica"
+        form.fields['hospital_TOTAL'].label = "Total de Hospitalizados COVID-19 hoy"
+        form.fields['hospital_contagios'].label = "Funcionarios Contagiados"
         form.fields['hospital_lm'].label = "Cantidad de LM en el Hospital"
-        form.fields['hospital_T1'].label = "Casos Tipo 1 en el Hospital"
-        form.fields['hospital_T2'].label = "Casos Tipo 2 en el Hospital"
-        form.fields['hospital_T3'].label = "Casos Tipo 3 en el Hospital"
-        form.fields['hospital_T4'].label = "Casos Tipo 4 en el Hospital"
+
         return form
 
 def casos_chile_chart(request):
     labels = []
     data = []
-
-    meses={}
-    queryset = Estadistica.estadisticas.all()
-    for dato in queryset:
-        mes=dato.fecha.strftime("%m")
-        if mes in meses:
-            casos=meses[mes]
-            if casos<dato.casos_Chile:
-                meses[mes]=dato.casos_Chile
-        else:
-            meses[mes]=dato.casos_Chile
-    for mes in meses.keys():
-        labels.append(mes)
-        data.append(meses[mes])
-    
+    datasets = []
+    nombres = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+    for mes in range(1,13):
+        queryset = Estadistica.estadisticas.filter(fecha__month=mes,fecha__year=2020).order_by('fecha')[:1]
+        for dato in queryset:
+            labels.append(nombres[mes-1])
+            data.append(dato.contagios_Chile)
+    datasets.append({
+        'label': "Contagios en Chile",
+        'data': data
+    })
     return JsonResponse(data={
         'labels': labels,
-        'data': data,
+        'datasets': datasets,
     })
 
 def casos_hospital_chart(request):
     datasets = []
 
-    queryset = Estadistica.estadisticas.order_by("fecha")[:4]
-    labels = [ "Tipo 1", "Tipo 2", "Tipo 3", "Tipo 4" ]
+    queryset = Estadistica.estadisticas.order_by('fecha')[:4]
+    labels = [ "UPC", "VMI", "Cama Básica", "Hospitalizados Hoy" ]
     for dato in queryset:
         data = []
-        data.append(dato.hospital_T1)
-        data.append(dato.hospital_T2)
-        data.append(dato.hospital_T3)
-        data.append(dato.hospital_T4)
+        data.append(dato.hospital_UPC)
+        data.append(dato.hospital_VMI)
+        data.append(dato.hospital_BASICA)
+        data.append(dato.hospital_TOTAL)
         datasets.append({
             'label': dato.fecha.strftime("%d-%m"),
             'data': data
         })
-    
     return JsonResponse(data={
         'labels': labels,
         'datasets': datasets,

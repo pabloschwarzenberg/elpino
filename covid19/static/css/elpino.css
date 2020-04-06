@@ -6,3 +6,6 @@ li {
     display:inline;
     font-size: large;
 }
+a.nav-link {
+    font-size: xx-large;
+}

@@ -7,12 +7,17 @@ import os
 class Noticia(models.Model):
     fecha=models.DateTimeField()
     titulo=models.CharField(max_length=128)
-    imagen=models.CharField(max_length=256)
+    imagen=models.FileField(upload_to='news/%Y/%m/%d/')
     descripcion=models.CharField(max_length=1024)
     noticias=models.Manager()
 
     def __str__(self):
         return "{}".format(self.titulo)
+
+    def delete(self, *args, **kwargs):
+        if(self.imagen):
+            os.remove(os.path.join(settings.MEDIA_ROOT, self.imagen.name))
+        super(Noticia,self).delete(*args,**kwargs)
 
 class Documento(models.Model):
     ARCHIVO = 0
@@ -39,11 +44,13 @@ class Documento(models.Model):
 
 class Estadistica(models.Model):
     fecha=models.DateField()
-    casos_Chile=models.IntegerField()
-    hospital_T1=models.IntegerField()
-    hospital_T2=models.IntegerField()
-    hospital_T3=models.IntegerField()
-    hospital_T4=models.IntegerField()
+    contagios_Chile=models.IntegerField()
+    confirmados_Hospital=models.IntegerField()
+    examenes_Hospital=models.IntegerField()
+    hospital_UPC=models.IntegerField()
+    hospital_VMI=models.IntegerField()
+    hospital_BASICA=models.IntegerField()
+    hospital_TOTAL=models.IntegerField()
     hospital_contagios=models.IntegerField()
     hospital_lm=models.IntegerField()
     estadisticas=models.Manager()

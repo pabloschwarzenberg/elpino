@@ -16,26 +16,26 @@
   <table width="100%">
     <tr>
       <td align="center">
+        <strong style="font-size: xxx-large;">{{estadisticas.confirmados_Hospital}}</strong>
+      </td>
+      <td align="center">
         <strong style="font-size: xxx-large;">{{estadisticas.hospital_contagios}}</strong>
       </td>
-      <td align="center">
-        <strong style="font-size: xxx-large;">{{estadisticas.hospital_lm}}</strong>
-      </td>
     </tr>
     <tr>
       <td align="center">
-        FUNCIONARIOS
+        CASOS CONFIRMADOS
       </td>
       <td align="center">
         FUNCIONARIOS
       </td>
     </tr>
     <tr>
+      <td align="center">
+        HOSPITAL
+      </td>
       <td align="center">
         CONTAGIADOS
-      </td>
-      <td align="center">
-        CON LM
       </td>
     </tr>
   </table>
@@ -49,24 +49,20 @@
         success: function (data)
         {
           var ctx = $contagiosChart[0].getContext("2d");
-          new Chart(ctx,
-          {
-            type: 'pie',
+          new Chart(ctx, {
+            type: 'bar',
             data: {
-              datasets: [{
-                data: data.data,
-                label: 'Mes'
-              }],
-              labels: data.labels
+              labels: data.labels,
+              datasets: data.datasets  
             },
             options: {
               responsive: true,
+              legend: {
+                position: 'top',
+              },
               title: {
                 display: true,
-                text: 'Casos en Chile'
-              },
-              legend: {
-                display: true
+                text: 'Evolución'
               },
               plugins: {
                 colorschemes: {
@@ -77,7 +73,7 @@
           });
         }
       });
-
+  
       var $contagiosHospitalChart = $("#contagios_hospital_chart");
       $.ajax({
         url: $contagiosHospitalChart.data("url"),
@@ -97,7 +93,7 @@
               },
               title: {
                 display: true,
-                text: 'Casos Hospital El Pino'
+                text: 'Pacientes Hospitalizados en Hospital El Pino'
               },
               plugins: {
                 colorschemes: {

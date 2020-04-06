@@ -6,7 +6,10 @@
   <div id="container" style="width: 100%;">
     <div class="row">
       <div class="col-sm-8">
-        <canvas id="contagios_chart" data-url="{% url 'casos_chile_chart' %}"></canvas>
+        <canvas id="casos_chile_chart" data-url="{% url 'casos_chile_chart' %}"></canvas>
+      </div>
+      <div class="col-sm-8">
+        <canvas id="casos_hospital_chart"></canvas>
       </div>
       <div class="col-sm-8">
         <canvas id="contagios_hospital_chart" data-url="{% url 'casos_hospital_chart' %}"></canvas>
@@ -19,12 +22,24 @@
         <strong style="font-size: xxx-large;">{{estadisticas.confirmados_Hospital}}</strong>
       </td>
       <td align="center">
+        <strong style="font-size: xxx-large;">{{estadisticas.examenes_Hospital}}</strong>
+      </td>
+      <td align="center">
         <strong style="font-size: xxx-large;">{{estadisticas.hospital_contagios}}</strong>
+      </td>
+      <td align="center">
+        <strong style="font-size: xxx-large;">{{estadisticas.hospital_recuperados}}</strong>
       </td>
     </tr>
     <tr>
       <td align="center">
         CASOS CONFIRMADOS
+      </td>
+      <td align="center">
+        EXÁMENES
+      </td>
+      <td align="center">
+        FUNCIONARIOS
       </td>
       <td align="center">
         FUNCIONARIOS
@@ -35,7 +50,13 @@
         HOSPITAL
       </td>
       <td align="center">
+        HOSPITAL
+      </td>
+      <td align="center">
         CONTAGIADOS
+      </td>
+      <td align="center">
+        RECUPERADOS
       </td>
     </tr>
   </table>
@@ -43,17 +64,18 @@
 
     $(function () {
 
-      var $contagiosChart = $("#contagios_chart");
+      var $casos_chile_Chart = $("#casos_chile_chart");
+      var $casos_hospital_Chart = $("#casos_hospital_chart");
       $.ajax({
-        url: $contagiosChart.data("url"),
+        url: $casos_chile_Chart.data("url"),
         success: function (data)
         {
-          var ctx = $contagiosChart[0].getContext("2d");
+          var ctx = $casos_chile_Chart[0].getContext("2d");
           new Chart(ctx, {
             type: 'bar',
             data: {
               labels: data.labels,
-              datasets: data.datasets  
+              datasets: data.dataset1  
             },
             options: {
               responsive: true,
@@ -62,7 +84,30 @@
               },
               title: {
                 display: true,
-                text: 'Evolución'
+                text: 'Evolución en Chile'
+              },
+              plugins: {
+                colorschemes: {
+                scheme: 'brewer.Paired12'
+                }
+              }
+            }
+          });
+          var ctx2 = $casos_hospital_Chart[0].getContext("2d");
+          new Chart(ctx2, {
+            type: 'bar',
+            data: {
+              labels: data.labels,
+              datasets: data.dataset2  
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Evolución en el Hospital'
               },
               plugins: {
                 colorschemes: {

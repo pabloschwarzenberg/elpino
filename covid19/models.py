@@ -52,7 +52,7 @@ class Estadistica(models.Model):
     hospital_BASICA=models.IntegerField()
     hospital_TOTAL=models.IntegerField()
     hospital_contagios=models.IntegerField()
-    hospital_lm=models.IntegerField()
+    hospital_recuperados=models.IntegerField()
     estadisticas=models.Manager()
 
 SERVICIOS = (

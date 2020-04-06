@@ -36,9 +36,14 @@ class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         try:
-            return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.latest('id')})
+            return render(request, 'estadisticas.html', {'estadisticas': Estadistica.estadisticas.latest('fecha')})
         except:
-            return render(request, 'estadisticas.html', {'estadisticas': {'confirmados_Hospital':0,'hospital_contagios':0}})
+            return render(request, 'estadisticas.html', {'estadisticas':
+            {'confirmados_Hospital':0,
+            'examenes_Hospital':0,
+            'hospital_contagios':0,
+            'hospital_recuperados':0
+            }})
 
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -180,7 +185,7 @@ class EstadisticaCreate(CreateView):
     model = Estadistica
     template_name='./estadistica_form.html'
     fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
-    'hospital_TOTAL', 'hospital_contagios', 'hospital_lm']
+    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
 
     def get_form(self, form_class=None):
         form = super(EstadisticaCreate, self).get_form(form_class)
@@ -196,34 +201,42 @@ class EstadisticaCreate(CreateView):
         form.fields['hospital_BASICA'].label = "Pacientes hospitalizados en Cama Básica"
         form.fields['hospital_TOTAL'].label = "Total de Hospitalizados COVID-19 hoy"
         form.fields['hospital_contagios'].label = "Funcionarios Contagiados"
-        form.fields['hospital_lm'].label = "Cantidad de LM en el Hospital"
+        form.fields['hospital_recuperados'].label = "Funcionarios Recuperados"
 
         return form
 
 def casos_chile_chart(request):
     labels = []
+    dataset1 = []
     data = []
-    datasets = []
-    nombres = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
-    for mes in range(1,13):
-        queryset = Estadistica.estadisticas.filter(fecha__month=mes,fecha__year=2020).order_by('fecha')[:1]
-        for dato in queryset:
-            labels.append(nombres[mes-1])
-            data.append(dato.contagios_Chile)
-    datasets.append({
-        'label': "Contagios en Chile",
+    dataset2 = []
+    data2 = []
+
+    queryset = Estadistica.estadisticas.order_by('fecha')[:4]
+    for dato in queryset:
+        labels.append(dato.fecha.strftime("%d-%m"))
+        data.append(dato.contagios_Chile)
+        data2.append(dato.confirmados_Hospital)
+    dataset1.append({
+        'label': 'Casos en Chile',
         'data': data
     })
+    dataset2.append({
+        'label': 'Casos en Hospital El Pino',
+        'data': data2
+    })
+
     return JsonResponse(data={
         'labels': labels,
-        'datasets': datasets,
+        'dataset1': dataset1,
+        'dataset2': dataset2
     })
 
 def casos_hospital_chart(request):
     datasets = []
 
     queryset = Estadistica.estadisticas.order_by('fecha')[:4]
-    labels = [ "UPC", "VMI", "Cama Básica", "Hospitalizados Hoy" ]
+    labels = [ "UPC", "VMI", "Cama Básica", "Total Día" ]
     for dato in queryset:
         data = []
         data.append(dato.hospital_UPC)

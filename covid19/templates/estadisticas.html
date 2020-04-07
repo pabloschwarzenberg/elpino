@@ -68,17 +68,24 @@
       var $casos_hospital_Chart = $("#casos_hospital_chart");
       $.ajax({
         url: $casos_chile_Chart.data("url"),
-        success: function (data)
+        success: function (data1)
         {
           var ctx = $casos_chile_Chart[0].getContext("2d");
           new Chart(ctx, {
             type: 'bar',
             data: {
-              labels: data.labels,
-              datasets: data.dataset1  
+              labels: data1.labels,
+              datasets: data1.dataset1  
             },
             options: {
               responsive: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0
+                  }
+                }]
+              },
               legend: {
                 position: 'top',
               },
@@ -97,11 +104,18 @@
           new Chart(ctx2, {
             type: 'bar',
             data: {
-              labels: data.labels,
-              datasets: data.dataset2  
+              labels: data1.labels,
+              datasets: data1.dataset2  
             },
             options: {
               responsive: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0
+                  }
+                }]
+              },
               legend: {
                 position: 'top',
               },
@@ -133,6 +147,13 @@
             },
             options: {
               responsive: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0
+                  }
+                }]
+              },
               legend: {
                 position: 'top',
               },
@@ -155,5 +176,6 @@
 
   {% if user.is_staff %}
     <a class="btn btn-primary btn-lg" href="/estadistica/create/" role="button">Agregar</a>
-  {% endif %}
+    <a class="btn btn-primary btn-lg" href="/estadistica/list/" role="button">Listar</a>
+    {% endif %}
 {% endblock %}

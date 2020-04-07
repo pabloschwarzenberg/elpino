@@ -45,6 +45,14 @@ class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
             'hospital_recuperados':0
             }})
 
+class HomeEstadisticasListView(LoginRequiredMixin,TemplateView):
+    #permission_required='puede_buscar_cursos'
+    def get(self, request, **kwargs):
+        try:
+            return render(request, 'estadisticas_list.html', {'estadisticas': Estadistica.estadisticas.order_by('-fecha')})
+        except:
+            return render(request, 'estadisticas_list.html', {'estadisticas': []})   
+
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
@@ -181,18 +189,12 @@ class ContactoEvaluationView(LoginRequiredMixin,TemplateView):
         pk=kwargs["pk"]
         return render(request, 'evaluacion.html', {'contacto':Contacto.contactos.get(id=pk)})
 
-class EstadisticaCreate(CreateView):
-    model = Estadistica
-    template_name='./estadistica_form.html'
-    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
-    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
-
-    def get_form(self, form_class=None):
-        form = super(EstadisticaCreate, self).get_form(form_class)
+class EstadisticaFormatMixin():
+    def configurar(self,form):
+        form.fields['fecha'].widget = forms.DateInput(format="%d/%m/%Y",attrs={
+            'class': 'datepicker',
+            'autocomplete': 'off'})
         form.fields['fecha'].input_formats=['%d/%m/%Y']
-        form.fields['fecha'].widget = forms.DateTimeInput(attrs={
-            'class': 'datetimepicker-input',
-            'data-target': '#datetimepicker1'})
         form.fields['contagios_Chile'].label = "Cantidad de contagios en Chile"
         form.fields['confirmados_Hospital'].label = "Cantidad de Casos Confirmados en el Hospital"
         form.fields['examenes_Hospital'].label = "Cantidad de Exámenes tomados a la fecha en el Hospital"
@@ -205,6 +207,32 @@ class EstadisticaCreate(CreateView):
 
         return form
 
+class EstadisticaCreate(EstadisticaFormatMixin,CreateView):
+    model = Estadistica
+    template_name='./estadistica_form.html'
+    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
+    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
+
+    def get_form(self, form_class=None):
+        form = super(EstadisticaCreate, self).get_form(form_class)
+        return self.configurar(form)
+
+class EstadisticaUpdate(EstadisticaFormatMixin,UpdateView):
+    model = Estadistica
+    template_name='./estadistica_form.html'
+    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
+    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
+
+    def get_form(self, form_class=None):
+        form = super(EstadisticaUpdate, self).get_form(form_class)
+        return self.configurar(form)
+
+class EstadisticaDelete(DeleteView):
+    model = Estadistica
+    template_name='./estadistica_confirm_delete.html'
+    success_url = reverse_lazy('estadistica_list')
+
+
 def casos_chile_chart(request):
     labels = []
     dataset1 = []
@@ -212,20 +240,22 @@ def casos_chile_chart(request):
     dataset2 = []
     data2 = []
 
-    queryset = Estadistica.estadisticas.order_by('fecha')[:4]
+    queryset = Estadistica.estadisticas.order_by('-fecha')[:4]
     for dato in queryset:
         labels.append(dato.fecha.strftime("%d-%m"))
         data.append(dato.contagios_Chile)
         data2.append(dato.confirmados_Hospital)
+    data.reverse()
     dataset1.append({
         'label': 'Casos en Chile',
         'data': data
     })
+    data2.reverse()
     dataset2.append({
         'label': 'Casos en Hospital El Pino',
         'data': data2
     })
-
+    labels.reverse()
     return JsonResponse(data={
         'labels': labels,
         'dataset1': dataset1,
@@ -235,7 +265,7 @@ def casos_chile_chart(request):
 def casos_hospital_chart(request):
     datasets = []
 
-    queryset = Estadistica.estadisticas.order_by('fecha')[:4]
+    queryset = Estadistica.estadisticas.order_by('-fecha')[:4]
     labels = [ "UPC", "VMI", "Cama Básica", "Total Día" ]
     for dato in queryset:
         data = []
@@ -247,6 +277,8 @@ def casos_hospital_chart(request):
             'label': dato.fecha.strftime("%d-%m"),
             'data': data
         })
+    labels.reverse()
+    datasets.reverse()
     return JsonResponse(data={
         'labels': labels,
         'datasets': datasets,

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+          <th>Fecha</th>
+          <th>Casos Chile</th>
+          <th>Casos Hospital</th>
+          <th>Exámenes Hospital</th>
+          <th>Pacientes UPC</th>
+          <th>Pacientes VMI</th>
+          <th>Pacientes Cama básica</th>
+          <th>Hospitalizados día</th>
+          <th>Funcionarios Contagiados</th>
+          <th>Funcionarios Recuperados</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+          <td>{{estadistica.fecha | date:"d/m/Y"}}</td>
+          <td>{{estadistica.contagios_Chile}}</td>
+          <td>{{estadistica.confirmados_Hospital}}</td>
+          <td>{{estadistica.examenes_Hospital}}</td>
+          <td>{{estadistica.hospital_UPC}}</td>
+          <td>{{estadistica.hospital_VMI}}</td>
+          <td>{{estadistica.hospital_BASICA}}</td>
+          <td>{{estadistica.hospital_TOTAL}}</td>
+          <td>{{estadistica.hospital_contagios}}</td>
+          <td>{{estadistica.hospital_recuperados}}</td>
+      </tr>
+    </tbody>
+  </table>
+    <p>¿Desea borrar el registro?</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Confirmar borrado</button>
+      </form>
+</div>
+
+{% endblock %}

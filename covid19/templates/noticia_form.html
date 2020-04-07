@@ -20,10 +20,12 @@
                         <script type="text/javascript">
                             $(function () {
                                 $('#datetimepicker1').datetimepicker({
-                                    format: 'DD/MM/YYYY hh:mm A'
+                                    format: 'DD/MM/YYYY hh:mm A',
+                                    date: $(fecha)
                                 });
                             });
-                        </script>                    {% else %}
+                        </script>
+                    {% else %}
                         {{field}}
                     {% endif %}
                     {% if field.help_text %}

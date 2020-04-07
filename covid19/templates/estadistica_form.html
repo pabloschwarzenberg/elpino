@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
@@ -11,17 +10,15 @@
                 <td>{{ field.label_tag }}</td>
                 <td>
                     {% if field.name == "fecha" %}
-                        <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                                {{field}}
-                                <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                </div>
-                        </div>
+                        {{field}}
                         <script type="text/javascript">
                             $(function () {
-                                $('#datetimepicker1').datetimepicker({
-                                    format: 'DD/MM/YYYY'
+                                $('#id_fecha').datepicker({
+                                    dateFormat: 'dd/mm/yy'
                                 });
+                                $('#id_fecha').datepicker(
+                                    'setDate', $('#id_fecha').val()
+                                );
                             });
                         </script>
                     {% else %}
@@ -38,7 +35,7 @@
         {% endfor %}
         <tr>
             <td colspan="2">
-                <button type="submit" class="btn btn-lg btn-primary btn-block">Agregar</button>
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Guardar</button>
             </td>
         </tr>
         </table>

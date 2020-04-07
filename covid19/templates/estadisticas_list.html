@@ -1,0 +1,42 @@
+{% extends  'base.html' %}
+
+{% block content %}
+  <h1>Estadísticas</h1>
+
+  <div id="container" style="width: 100%;">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Fecha</th>
+                <th>Casos Chile</th>
+                <th>Casos Hospital</th>
+                <th>Exámenes Hospital</th>
+                <th>Pacientes UPC</th>
+                <th>Pacientes VMI</th>
+                <th>Pacientes Cama básica</th>
+                <th>Hospitalizados día</th>
+                <th>Funcionarios Contagiados</th>
+                <th>Funcionarios Recuperados</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dato in estadisticas %}
+            <tr>
+                <td><a href="/estadistica/{{dato.id}}/delete/"><i class="fas fa-minus-circle"></i></a></td>
+                <td><a href="/estadistica/{{dato.id}}/update/">{{dato.fecha | date:"d/m/Y"}}</a></td>
+                <td>{{dato.contagios_Chile}}</td>
+                <td>{{dato.confirmados_Hospital}}</td>
+                <td>{{dato.examenes_Hospital}}</td>
+                <td>{{dato.hospital_UPC}}</td>
+                <td>{{dato.hospital_VMI}}</td>
+                <td>{{dato.hospital_BASICA}}</td>
+                <td>{{dato.hospital_TOTAL}}</td>
+                <td>{{dato.hospital_contagios}}</td>
+                <td>{{dato.hospital_recuperados}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </div>
+{% endblock %}

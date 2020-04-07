@@ -277,7 +277,6 @@ def casos_hospital_chart(request):
             'label': dato.fecha.strftime("%d-%m"),
             'data': data
         })
-    labels.reverse()
     datasets.reverse()
     return JsonResponse(data={
         'labels': labels,

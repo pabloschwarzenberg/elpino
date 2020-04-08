@@ -5,6 +5,7 @@ apt-get update
 apt-get install python3-pip
 apt-get install mysql-server
 apt-get install libmysqlclient-dev
+mysql_secure_installation
 apt-get install python-dev
 apt-get install libpq-dev
 apt-get update

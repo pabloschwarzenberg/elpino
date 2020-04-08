@@ -12,13 +12,30 @@
             <tr>
                 <td>{{ field.label_tag }}</td>
                 <td>
-                    {{field}}
-                    {% if field.help_text %}
-                        <small style="color: grey">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p style="color: red">{{ error }}</p>
-                    {% endfor %}
+                {% if field.name == "fecha_nacimiento" %}
+                  {{field}}
+                  <script type="text/javascript">
+                      $(function () {
+                          $('#id_fecha_nacimiento').datepicker({
+                              dateFormat: 'dd/mm/yy',
+                              changeMonth: true,
+                              changeYear: true,
+                              yearRange: "-70:+0",
+                          });
+                          $('#id_fecha_nacimiento').datepicker(
+                              'setDate', $('#id_fecha').val()
+                          );
+                      });
+                  </script>
+                {% else %}
+                  {{field}}
+                {% endif %}
+                  {% if field.help_text %}
+                      <small style="color: grey">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                      <p style="color: red">{{ error }}</p>
+                  {% endfor %}
                 </td>
             </tr>
         {% endfor %}

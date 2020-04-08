@@ -10,22 +10,13 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 
-class PermissionRequiredInGroupMixin(PermissionRequiredMixin):
-    def has_permission(self):
-        usuario=self.request.user
-        permisos=self.get_permission_required()
-        privilegios=[]
-        for g in usuario.groups.all():
-            for p in g.permissions.all():
-                privilegios.append(p.codename)
-        for r in permisos:
-            if r not in privilegios:
-                return False
-        return True
-
 class HomePageView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
+
+class AboutView(LoginRequiredMixin,TemplateView):
+    def get(self, request, **kwargs):
+        return render(request, 'about.html')
 
 class HomeNoticiasView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -56,17 +47,20 @@ class HomeEstadisticasListView(LoginRequiredMixin,TemplateView):
 class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=1),'titulo': 'Algoritmos'})
+        return render(request, 'biblioteca.html',
+        {'documentos': Documento.documentos.filter(tipo=1),'titulo': 'Flujogramas', 'tipo':1})
 
 class HomeBibliotecaView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.all(), 'titulo': 'Biblioteca'})
+        return render(request, 'biblioteca.html',
+        {'documentos': Documento.documentos.filter(tipo=0), 'titulo': 'Biblioteca','tipo':0})
 
 class HomeVideosView(LoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'biblioteca.html', {'documentos': Documento.documentos.filter(tipo=2), 'titulo': 'Videos'})
+        return render(request, 'biblioteca.html',
+        {'documentos': Documento.documentos.filter(tipo=2), 'titulo': 'Videos','tipo':2})
 
 class DetalleNoticiaView(LoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
@@ -126,14 +120,13 @@ class DocumentValidationMixin:
                 if(p==-1) or link=="":
                     form.add_error("link","El link ingresado no es válido")
                     return self.form_invalid(form)
-                form.instance.link=link
-            if form.cleaned_data["archivo"]:
+            if "archivo" in form.cleaned_data and form.cleaned_data["archivo"]:
                 form.add_error("link","No puede subir archivos de video, por favor indique el link a youtube")
                 return self.form_invalid(form)
-
-        if not form.cleaned_data["link"] and not form.cleaned_data["archivo"]:
-            form.add_error("archivo","Debe indicar al menos un link o un archivo")
-            return self.form_invalid(form)
+        else:
+            if not form.cleaned_data["archivo"]:
+                form.add_error("archivo","Debe indicar un archivo")
+                return self.form_invalid(form)
         
         return super().form_valid(form)
 
@@ -141,11 +134,36 @@ class DocumentoCreate(DocumentValidationMixin,CreateView):
     model = Documento
     template_name='./documento_form.html'
     fields = ['tipo','titulo','link','archivo']
-   
+
+    def get_form(self, form_class=None):
+        form = super(DocumentoCreate, self).get_form(form_class)
+        form.fields['tipo'].widget.attrs={'disabled':'disabled'}
+        form.fields['tipo'].initial=self.kwargs["tipo"]
+
+        return form
+
+class DownloadDocumentCreate(DocumentoCreate):
+    fields = ['tipo','titulo','archivo']
+
+class VideoCreate(DocumentoCreate):
+    fields = ['tipo','titulo','link']
+
 class DocumentoUpdate(DocumentValidationMixin,UpdateView):
     model = Documento
     template_name='./documento_form.html'
     fields = ['tipo','titulo','link','archivo']
+
+    def get_form(self, form_class=None):
+        form = super(DocumentoUpdate, self).get_form(form_class)
+        form.fields['tipo'].widget.attrs={'disabled':'disabled'}
+
+        return form
+
+class DownloadDocumentUpdate(DocumentoUpdate):
+    fields = ['tipo','titulo','archivo']
+
+class VideoUpdate(DocumentoUpdate):
+    fields = ['tipo','titulo','link']
 
 class DocumentoDelete(DeleteView):
     model = Documento

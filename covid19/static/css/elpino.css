@@ -1,11 +1,69 @@
+@media (max-width: 1024px)
+{
+    button {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    a {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    li {
+        display:inline;
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    a.nav-link {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    label {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    input {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+
+    select option {
+        font-size: calc(100% + 1vw + 1vh) !important;
+    }
+}
+
+@media (min-width: 1025px)
+{
+    button {
+        font-size: large;
+    }
+
+    a {
+        font-size: large;
+    }
+
+    li {
+        display:inline;
+        font-size: large;
+    }
+
+    a.nav-link {
+        font-size: xx-large;
+    }
+
+    label {
+        font-size: calc(100%) !important;
+    }
+
+    input {
+        font-size: calc(100%) !important;
+    }
+
+    select option {
+        font-size: calc(100%) !important;
+    }
+}
+
 ul {
     list-style-type:none;
     font-size: 0;
 }
-li {
-    display:inline;
-    font-size: large;
-}
-a.nav-link {
-    font-size: xx-large;
-}
+

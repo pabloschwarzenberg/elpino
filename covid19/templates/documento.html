@@ -1,4 +1,5 @@
 {% extends  'base.html' %}
+{% load covid19_extras %}
 
 {% block content %}
 <div class="jumbotron">
@@ -19,15 +20,10 @@
         {% endif %}
         {% if documento.link and documento.tipo == 2 %}
                 <iframe width="560" height="315"
-                        src="https://www.youtube.com/embed/{{documento.link}}"
+                        src="https://www.youtube.com/embed/{{documento.link | convertirLinkYoutube}}"
                         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen>
                 </iframe>
-        {% endif %}
-        <hr class="my-4">
-        {% if user.is_staff %}
-                <a class="btn btn-primary btn-lg" href="/documento/{{ documento.id }}/update" role="button">Actualizar</a>
-                <a class="btn btn-primary btn-lg" href="/documento/{{ documento.id }}/delete" role="button">Borrar</a>
         {% endif %}
 </div>
 {% endblock %}

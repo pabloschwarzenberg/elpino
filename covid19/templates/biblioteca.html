@@ -7,12 +7,12 @@
   {% for documento in documentos %}
     <div class="media border p-3">
       {% if documento.tipo == 0 %}
-        <a href="/documento/{{ documento.id }}/">
+        <a href="{{documento.archivo.url}}">
           <img src="{% static "iconic/svg/file.svg" %}" class="mr-3 mt-3" style="width:60px;">
         </a>
       {% endif %}
       {% if documento.tipo == 1 %}
-        <a href="/documento/{{ documento.id }}/">
+        <a href="{{documento.archivo.url}}">
           <img src="{% static "iconic/svg/fork.svg" %}" class="mr-3 mt-3" style="width:60px;">
         </a>
       {% endif %}
@@ -24,10 +24,18 @@
       <div class="media-body">
         <h4>{{documento.titulo}} <small><i>{{ documento.tipo | convertirTipoDocumento }}</i></a></h4>
       </div>
+      <div class="media-left">
+        <a href="/documento/{{ documento.id }}/update/{{documento.tipo}}">
+          <p><i class="fas fa-edit icon-3x"></i></p>
+        </a>
+        <a href="/documento/{{ documento.id }}/delete/{{documento.tipo}}">
+          <p><i class="fas fa-minus-circle icon-3x"></i></p>
+        </a>
+      </div>
     </div>
   {% endfor %}
 </div>
 {% if user.is_staff %}
-  <a class="btn btn-primary btn-lg" href="/documento/create/" role="button">Agregar</a>
+  <a class="btn btn-primary btn-lg" href="/documento/create/{{tipo}}/" role="button">Agregar</a>
 {% endif %}
 {% endblock %}

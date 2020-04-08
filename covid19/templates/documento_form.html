@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<form action="" method="post" enctype="multipart/form-data">
+<form id="documento_form" action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
         <table class="table table-borderless">
@@ -22,10 +21,25 @@
         {% endfor %}
         <tr>
             <td colspan="2">
-                <button type="submit" class="btn btn-lg btn-primary btn-block">Guardar</button>
+                <button type="submit" class="btn btn-lg btn-primary">Guardar</button>
             </td>
         </tr>
         </table>
 </form>
+<script type="text/javascript">
+    function ajustar(x)
+    {
+        if(x.matches)
+            $('#id_tipo').css("font-size","calc(100% + 1vw + 1vh)");
+        else
+            $('#id_tipo').css("font-size","medium");
+    }
+    $(function () {
+        window.matchMedia('(max-width: 1024px)').addListener(ajustar);
+    });
+    $('#documento_form').submit(function(){
+        $("#documento_form :disabled").removeAttr('disabled');
+    });
+</script>
 
 {% endblock %}

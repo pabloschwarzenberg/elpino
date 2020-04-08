@@ -25,7 +25,7 @@ class Documento(models.Model):
     VIDEO = 2
     TIPO_CHOICES = [
         (ARCHIVO, 'Archivo'),
-        (ALGORITMO, 'Algoritmo'),
+        (ALGORITMO, 'Flujograma'),
         (VIDEO, 'Video'),
     ]
     tipo = models.IntegerField(
@@ -71,9 +71,10 @@ class Usuario(AbstractUser):
     apellido_materno = models.CharField(max_length=30)
     fecha_nacimiento = models.DateField()
     funcionario = models.BooleanField()
-    servicio = models.IntegerField(choices=SERVICIOS,blank=True,null=True)
-    actividad = models.IntegerField(choices=ACTIVIDADES,blank=True,null=True)
+    servicio = models.CharField(max_length=30,blank=True,null=True)
+    actividad = models.CharField(max_length=30,blank=True,null=True)
     email = models.EmailField(max_length=254, help_text='')
+    telefono = models.CharField(max_length=30)
 
 class Contacto(models.Model):
     usuario=models.ForeignKey(Usuario,on_delete=models.CASCADE)

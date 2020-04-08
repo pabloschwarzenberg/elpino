@@ -24,14 +24,16 @@
       <div class="media-body">
         <h4>{{documento.titulo}} <small><i>{{ documento.tipo | convertirTipoDocumento }}</i></a></h4>
       </div>
-      <div class="media-left">
-        <a href="/documento/{{ documento.id }}/update/{{documento.tipo}}">
-          <p><i class="fas fa-edit icon-3x"></i></p>
-        </a>
-        <a href="/documento/{{ documento.id }}/delete/{{documento.tipo}}">
-          <p><i class="fas fa-minus-circle icon-3x"></i></p>
-        </a>
-      </div>
+      {% if user.is_staff %}
+        <div class="media-left">
+          <a href="/documento/{{ documento.id }}/update/{{documento.tipo}}">
+            <p><i class="fas fa-edit icon-3x"></i></p>
+          </a>
+          <a href="/documento/{{ documento.id }}/delete/{{documento.tipo}}">
+            <p><i class="fas fa-minus-circle icon-3x"></i></p>
+          </a>
+        </div>
+      {% endif %}
     </div>
   {% endfor %}
 </div>

@@ -1,9 +1,24 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView
 from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from covid19.models import Usuario
+
+class LoginSessionView(LoginView):
+    def form_valid(self, form):
+        self.request.session["username"]=form.get_user().username
+        self.request.session.set_expiry(300)
+        return super().form_valid(form) 
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['username'].label="Usuario"
+        form.fields['username'].widget.attrs={'class': 'form-control'}
+        form.fields['password'].label="Clave"
+        form.fields['password'].widget.attrs={'class': 'form-control'}
+        return form
 
 class SignUpForm(UserCreationForm):
     username = forms.CharField(label="Rut",max_length=30, required=True, help_text='')

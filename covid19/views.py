@@ -9,21 +9,31 @@ from django import forms
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
+from django.conf import settings
+from django.shortcuts import redirect
 
-class HomePageView(LoginRequiredMixin,TemplateView):
+class CustomLoginRequiredMixin(LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if "username" not in request.session:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+        return super().dispatch(request, *args, **kwargs)
+
+class HomePageView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
 
-class AboutView(LoginRequiredMixin,TemplateView):
+class AboutView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         return render(request, 'about.html')
 
-class HomeNoticiasView(LoginRequiredMixin,TemplateView):
+class HomeNoticiasView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
 
-class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
+class HomeEstadisticasView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         try:
@@ -36,7 +46,7 @@ class HomeEstadisticasView(LoginRequiredMixin,TemplateView):
             'hospital_recuperados':0
             }})
 
-class HomeEstadisticasListView(LoginRequiredMixin,TemplateView):
+class HomeEstadisticasListView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         try:
@@ -44,30 +54,30 @@ class HomeEstadisticasListView(LoginRequiredMixin,TemplateView):
         except:
             return render(request, 'estadisticas_list.html', {'estadisticas': []})   
 
-class HomeAlgoritmosView(LoginRequiredMixin,TemplateView):
+class HomeAlgoritmosView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
         {'documentos': Documento.documentos.filter(tipo=1),'titulo': 'Flujogramas', 'tipo':1})
 
-class HomeBibliotecaView(LoginRequiredMixin,TemplateView):
+class HomeBibliotecaView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
         {'documentos': Documento.documentos.filter(tipo=0), 'titulo': 'Biblioteca','tipo':0})
 
-class HomeVideosView(LoginRequiredMixin,TemplateView):
+class HomeVideosView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
         {'documentos': Documento.documentos.filter(tipo=2), 'titulo': 'Videos','tipo':2})
 
-class DetalleNoticiaView(LoginRequiredMixin,TemplateView):
+class DetalleNoticiaView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         id=kwargs["pk"]
         return render(request, 'noticia.html', {'noticia': Noticia.noticias.get(id=id)})
 
-class NoticiaCreate(CreateView):
+class NoticiaCreate(CustomLoginRequiredMixin,CreateView):
     model = Noticia
     template_name='./noticia_form.html'
     fields = ['fecha','titulo','imagen','descripcion']
@@ -82,7 +92,7 @@ class NoticiaCreate(CreateView):
         form.fields['descripcion'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 15})
         return form
 
-class NoticiaUpdate(UpdateView):
+class NoticiaUpdate(CustomLoginRequiredMixin,UpdateView):
     model = Noticia
     template_name='./noticia_form.html'
     fields = ['fecha','titulo','imagen','descripcion']
@@ -97,12 +107,12 @@ class NoticiaUpdate(UpdateView):
         form.fields['descripcion'].widget = forms.Textarea(attrs={'cols': 80, 'rows': 15})
         return form
 
-class NoticiaDelete(DeleteView):
+class NoticiaDelete(CustomLoginRequiredMixin,DeleteView):
     model = Noticia
     template_name='./noticia_confirm_delete.html'
     success_url = reverse_lazy('noticias')
 
-class DetalleDocumentoView(LoginRequiredMixin,TemplateView):
+class DetalleDocumentoView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         id=kwargs["pk"]
         return render(request, 'documento.html', {'documento': Documento.documentos.get(id=id)})
@@ -130,7 +140,7 @@ class DocumentValidationMixin:
         
         return super().form_valid(form)
 
-class DocumentoCreate(DocumentValidationMixin,CreateView):
+class DocumentoCreate(CustomLoginRequiredMixin,DocumentValidationMixin,CreateView):
     model = Documento
     template_name='./documento_form.html'
     fields = ['tipo','titulo','link','archivo']
@@ -159,13 +169,13 @@ class DocumentoUpdate(DocumentValidationMixin,UpdateView):
 
         return form
 
-class DownloadDocumentUpdate(DocumentoUpdate):
+class DownloadDocumentUpdate(CustomLoginRequiredMixin,DocumentoUpdate):
     fields = ['tipo','titulo','archivo']
 
-class VideoUpdate(DocumentoUpdate):
+class VideoUpdate(CustomLoginRequiredMixin,DocumentoUpdate):
     fields = ['tipo','titulo','link']
 
-class DocumentoDelete(DeleteView):
+class DocumentoDelete(CustomLoginRequiredMixin,DeleteView):
     model = Documento
     template_name='./documento_confirm_delete.html'
     success_url = reverse_lazy('biblioteca')
@@ -173,7 +183,7 @@ class DocumentoDelete(DeleteView):
 class CustomRadioSelect(forms.RadioSelect):
     template_name="./customradio.html"
 
-class ContactoCreate(CreateView):
+class ContactoCreate(CustomLoginRequiredMixin,CreateView):
     model=Contacto
     template_name='./contacto_form.html'
     fields=['contacto_confirmado','sintomas','contacto_10minutos','contacto_2horas']
@@ -202,7 +212,7 @@ class ContactoCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('contacto_evaluacion', kwargs={'pk': self.object.pk})
 
-class ContactoEvaluationView(LoginRequiredMixin,TemplateView):
+class ContactoEvaluationView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
         pk=kwargs["pk"]
         return render(request, 'evaluacion.html', {'contacto':Contacto.contactos.get(id=pk)})
@@ -225,7 +235,7 @@ class EstadisticaFormatMixin():
 
         return form
 
-class EstadisticaCreate(EstadisticaFormatMixin,CreateView):
+class EstadisticaCreate(CustomLoginRequiredMixin,EstadisticaFormatMixin,CreateView):
     model = Estadistica
     template_name='./estadistica_form.html'
     fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
@@ -235,7 +245,7 @@ class EstadisticaCreate(EstadisticaFormatMixin,CreateView):
         form = super(EstadisticaCreate, self).get_form(form_class)
         return self.configurar(form)
 
-class EstadisticaUpdate(EstadisticaFormatMixin,UpdateView):
+class EstadisticaUpdate(CustomLoginRequiredMixin,EstadisticaFormatMixin,UpdateView):
     model = Estadistica
     template_name='./estadistica_form.html'
     fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
@@ -245,7 +255,7 @@ class EstadisticaUpdate(EstadisticaFormatMixin,UpdateView):
         form = super(EstadisticaUpdate, self).get_form(form_class)
         return self.configurar(form)
 
-class EstadisticaDelete(DeleteView):
+class EstadisticaDelete(CustomLoginRequiredMixin,DeleteView):
     model = Estadistica
     template_name='./estadistica_confirm_delete.html'
     success_url = reverse_lazy('estadistica_list')

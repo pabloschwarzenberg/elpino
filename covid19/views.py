@@ -94,7 +94,7 @@ class NoticiaCreate(CustomLoginRequiredMixin,CreateView):
 
     def get_form(self, form_class=None):
         form = super(NoticiaCreate, self).get_form(form_class)
-        form.fields['fecha'].input_formats=['%d/%m/%Y %H:%M %p']
+        form.fields['fecha'].input_formats=['%m/%d/%Y %H:%M %p']
         form.fields['fecha'].widget = forms.DateTimeInput(attrs={
             'class': 'datetimepicker-input',
             'data-target': '#datetimepicker1'})

@@ -1,37 +1,33 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
+<img src="{% static "images/HEP APP BANNER ESTADISTICAS.png" %}" class="mx-auto d-block img-fluid">
 
 <div class="container">
   <table class="table table-striped">
     <thead>
       <tr>
           <th>Fecha</th>
-          <th>Casos Chile</th>
           <th>Casos Hospital</th>
-          <th>Exámenes Hospital</th>
-          <th>Pacientes UPC</th>
+          <th>Test PCR Hospital</th>
           <th>Pacientes VMI</th>
-          <th>Pacientes Cama básica</th>
-          <th>Hospitalizados día</th>
+          <th>Total Pacientes Hospitalizados día</th>
           <th>Funcionarios Contagiados</th>
-          <th>Funcionarios Recuperados</th>
+          <th>Test PCR a Funcionarios</th>
       </tr>
-    </thead>
-    <tbody>
+  </thead>
+  <tbody>
       <tr>
           <td>{{estadistica.fecha | date:"d/m/Y"}}</td>
-          <td>{{estadistica.contagios_Chile}}</td>
-          <td>{{estadistica.confirmados_Hospital}}</td>
+          <td>{{estadistica..confirmados_Hospital}}</td>
           <td>{{estadistica.examenes_Hospital}}</td>
-          <td>{{estadistica.hospital_UPC}}</td>
           <td>{{estadistica.hospital_VMI}}</td>
-          <td>{{estadistica.hospital_BASICA}}</td>
           <td>{{estadistica.hospital_TOTAL}}</td>
-          <td>{{estadistica.hospital_contagios}}</td>
-          <td>{{estadistica.hospital_recuperados}}</td>
+          <td>{{estadistica.funcionarios_contagiados}}</td>
+          <td>{{estadistica.funcionarios_PCR}}</td>
       </tr>
-    </tbody>
+  </tbody>
+
   </table>
     <p>¿Desea borrar el registro?</p>
     <form action="" method="POST">

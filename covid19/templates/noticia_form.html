@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
+<img src="{% static "images/HEP APP BANNER NOTICIAS.png" %}" class="mx-auto d-block img-fluid">
 
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}

@@ -1,16 +1,18 @@
 {% extends  'base.html' %}
-
+{% load l10n %}
+{% load static %}
 {% block content %}
-  <h1>Noticias</h1>
+  <img src="{% static "images/HEP APP BANNER NOTICIAS.png" %}" class="mx-auto d-block img-fluid">
   <div class="container">
       <div class="row mt-5 justify-content-center">
   {% for noticia in noticias %}
         <div class="card" style="width: 18rem;">
           <img src="{{noticia.imagen.url}}" class="card-img-top" alt="...">
           <div class="card-body">
-            <h5 class="card-title">{{ noticia.fecha }}</h5>
-            <p class="card-text">{{ noticia.titulo }}</p>
-            <a href="/noticia/{{ noticia.id }}/" class="card-link">Ir</a>
+            <h5 class="card-title">{{ noticia.titulo }}</h5>
+            <p class="card-text">{{ noticia.fecha | date:'d/m/Y H:i' }}</p>
+            <p class="card-text">{{ noticia.autor }}</p>
+            <a href="/noticia/{{ noticia.id }}/" class="card-link">Ver</a>
           </div>
         </div>
   {% endfor %}

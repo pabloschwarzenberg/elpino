@@ -2,34 +2,37 @@
 {% load covid19_extras %}
 {% load static %}
 {% block content %}
+<img src="{% static "images/HEP APP BANNER BIBLIOTECA.png" %}" class="mx-auto d-block img-fluid">
 <div class="container mt-3">
-  <h2>{{titulo}}</h2>
   {% for documento in documentos %}
     <div class="media border p-3">
       {% if documento.tipo == 0 %}
         <a href="{{documento.archivo.url}}">
-          <img src="{% static "iconic/svg/file.svg" %}" class="mr-3 mt-3" style="width:60px;">
+          <img src="{% static "iconic/svg/file.svg" %}" class="mr-3 mt-3" style="width:40px;">
+          {{documento.titulo}}
         </a>
       {% endif %}
       {% if documento.tipo == 1 %}
         <a href="{{documento.archivo.url}}">
-          <img src="{% static "iconic/svg/fork.svg" %}" class="mr-3 mt-3" style="width:60px;">
+          <img src="{% static "iconic/svg/fork.svg" %}" class="mr-3 mt-3" style="width:40px;">
+          {{documento.titulo}}
         </a>
       {% endif %}
       {% if documento.tipo == 2 %}
         <a href="/documento/{{ documento.id }}/">
-          <img src="{% static "iconic/svg/video.svg" %}" class="mr-3 mt-3" style="width:60px;">
+          <img src="{% static "iconic/svg/video.svg" %}" class="mr-3 mt-3" style="width:40px;">
+          {{documento.titulo}}
         </a>
       {% endif %}
       <div class="media-body">
-        <h4>{{documento.titulo}} <small><i>{{ documento.tipo | convertirTipoDocumento }}</i></a></h4>
+        &nbsp;
       </div>
       {% if user.is_staff %}
         <div class="media-left">
-          <a href="/documento/{{ documento.id }}/update/{{documento.tipo}}">
+          <a href="/documento/{{ documento.id }}/update/">
             <p><i class="fas fa-edit icon-3x"></i></p>
           </a>
-          <a href="/documento/{{ documento.id }}/delete/{{documento.tipo}}">
+          <a href="/documento/{{ documento.id }}/delete/">
             <p><i class="fas fa-minus-circle icon-3x"></i></p>
           </a>
         </div>
@@ -38,6 +41,6 @@
   {% endfor %}
 </div>
 {% if user.is_staff %}
-  <a class="btn btn-primary btn-lg" href="/documento/create/{{tipo}}/" role="button">Agregar</a>
+  <a class="btn btn-primary btn-lg" href="/documento/create/" role="button">Agregar</a>
 {% endif %}
 {% endblock %}

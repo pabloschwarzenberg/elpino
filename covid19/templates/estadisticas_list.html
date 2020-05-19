@@ -1,7 +1,7 @@
 {% extends  'base.html' %}
-
+{% load static %}
 {% block content %}
-  <h1>Estadísticas</h1>
+  <img src="{% static "images/HEP APP BANNER ESTADISTICAS.png" %}" class="mx-auto d-block img-fluid">
 
   <div id="container" style="width: 100%;">
     <table class="table table-striped">
@@ -9,15 +9,12 @@
             <tr>
                 <th>&nbsp;</th>
                 <th>Fecha</th>
-                <th>Casos Chile</th>
                 <th>Casos Hospital</th>
-                <th>Exámenes Hospital</th>
-                <th>Pacientes UPC</th>
+                <th>Test PCR Hospital</th>
                 <th>Pacientes VMI</th>
-                <th>Pacientes Cama básica</th>
-                <th>Hospitalizados día</th>
+                <th>Total Pacientes Hospitalizados día</th>
                 <th>Funcionarios Contagiados</th>
-                <th>Funcionarios Recuperados</th>
+                <th>Test PCR a Funcionarios</th>
             </tr>
         </thead>
         <tbody>
@@ -25,18 +22,18 @@
             <tr>
                 <td><a href="/estadistica/{{dato.id}}/delete/"><i class="fas fa-minus-circle"></i></a></td>
                 <td><a href="/estadistica/{{dato.id}}/update/">{{dato.fecha | date:"d/m/Y"}}</a></td>
-                <td>{{dato.contagios_Chile}}</td>
                 <td>{{dato.confirmados_Hospital}}</td>
                 <td>{{dato.examenes_Hospital}}</td>
-                <td>{{dato.hospital_UPC}}</td>
                 <td>{{dato.hospital_VMI}}</td>
-                <td>{{dato.hospital_BASICA}}</td>
                 <td>{{dato.hospital_TOTAL}}</td>
-                <td>{{dato.hospital_contagios}}</td>
-                <td>{{dato.hospital_recuperados}}</td>
+                <td>{{dato.funcionarios_contagiados}}</td>
+                <td>{{dato.funcionarios_PCR}}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
   </div>
+  {% if user.is_staff %}
+    <a class="btn btn-primary btn-lg" href="/estadistica/create/" role="button">Agregar</a>
+  {% endif %}
 {% endblock %}

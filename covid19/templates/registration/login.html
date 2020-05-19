@@ -1,5 +1,5 @@
 {% extends  'base.html' %}
-
+{% load static %}
 {% block content %}
 
 <div class="container">
@@ -7,7 +7,7 @@
     <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
       <div class="card card-signin my-5">
         <div class="card-body">
-          <h5 class="card-title text-center">Ingrese su usuario y clave</h5>
+          <img class="card-img-top" src="{% static "images/HEP APP COVID.png" %}" alt="Card image cap">
           <form action="" method="post">
             {% csrf_token %}
             {% for error in form.non_field_errors %}
@@ -23,8 +23,8 @@
               </div>
             {% endfor %}
             <hr class="my-4">
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Ingresar</button>
-            <a class="btn btn-lg btn-primary btn-block" href="{% url 'signup' %}" role="button">Registrar</a>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Ingreso</button>
+            <a class="btn btn-lg btn-primary btn-block" href="{% url 'signup' %}" role="button">Registro</a>
           </form>
         </div>
       </div>

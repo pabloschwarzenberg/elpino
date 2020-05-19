@@ -1,21 +1,23 @@
 {% extends  'base.html' %}
+{% load static %}
 
 {% block content %}
-  <h1>Estadísticas</h1>
+  <img src="{% static "images/HEP APP BANNER ESTADISTICAS.png" %}" class="mx-auto d-block img-fluid">
 
   <div id="container" style="width: 100%;">
     <div class="row">
       <div class="col-sm-8">
-        <canvas id="casos_chile_chart" data-url="{% url 'casos_chile_chart' %}"></canvas>
+        <canvas id="casos_hospital_chart" data-url="{% url 'casos_hospital_chart' %}"></canvas>
       </div>
       <div class="col-sm-8">
-        <canvas id="casos_hospital_chart"></canvas>
+        <canvas id="casos_funcionarios_chart"></canvas>
       </div>
       <div class="col-sm-8">
-        <canvas id="contagios_hospital_chart" data-url="{% url 'casos_hospital_chart' %}"></canvas>
+        <canvas id="camas_hospital_chart"></canvas>
       </div>
     </div>
   </div>
+<!--
   <table width="100%">
     <tr>
       <td align="center">
@@ -25,24 +27,24 @@
         <strong style="font-size: xxx-large;">{{estadisticas.examenes_Hospital}}</strong>
       </td>
       <td align="center">
-        <strong style="font-size: xxx-large;">{{estadisticas.hospital_contagios}}</strong>
+        <strong style="font-size: xxx-large;">{{estadisticas.funcionarios_contagiados}}</strong>
       </td>
       <td align="center">
-        <strong style="font-size: xxx-large;">{{estadisticas.hospital_recuperados}}</strong>
+        <strong style="font-size: xxx-large;">{{estadisticas.funcionarios_PCR}}</strong>
       </td>
     </tr>
     <tr>
       <td align="center">
-        CASOS CONFIRMADOS
+        CASOS
       </td>
       <td align="center">
-        EXÁMENES
+        TEST PCR
       </td>
       <td align="center">
-        FUNCIONARIOS
+        CASOS
       </td>
       <td align="center">
-        FUNCIONARIOS
+        TEST PCR
       </td>
     </tr>
     <tr>
@@ -53,97 +55,31 @@
         HOSPITAL
       </td>
       <td align="center">
-        CONTAGIADOS
+        FUNCIONARIOS
       </td>
       <td align="center">
-        RECUPERADOS
+        FUNCIONARIOS
       </td>
     </tr>
   </table>
+-->
   <script>
 
     $(function () {
 
-      var $casos_chile_Chart = $("#casos_chile_chart");
       var $casos_hospital_Chart = $("#casos_hospital_chart");
+      var $casos_funcionarios_Chart = $("#casos_funcionarios_chart");
+      var $camasHospitalChart = $("#camas_hospital_chart");
       $.ajax({
-        url: $casos_chile_Chart.data("url"),
-        success: function (data1)
-        {
-          var ctx = $casos_chile_Chart[0].getContext("2d");
-          new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: data1.labels,
-              datasets: data1.dataset1  
-            },
-            options: {
-              responsive: true,
-              scales: {
-                yAxes: [{
-                  ticks: {
-                    min: 0
-                  }
-                }]
-              },
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: 'Evolución en Chile'
-              },
-              plugins: {
-                colorschemes: {
-                scheme: 'brewer.Paired12'
-                }
-              }
-            }
-          });
-          var ctx2 = $casos_hospital_Chart[0].getContext("2d");
-          new Chart(ctx2, {
-            type: 'bar',
-            data: {
-              labels: data1.labels,
-              datasets: data1.dataset2  
-            },
-            options: {
-              responsive: true,
-              scales: {
-                yAxes: [{
-                  ticks: {
-                    min: 0
-                  }
-                }]
-              },
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: 'Evolución en el Hospital'
-              },
-              plugins: {
-                colorschemes: {
-                scheme: 'brewer.Paired12'
-                }
-              }
-            }
-          });
-        }
-      });
-  
-      var $contagiosHospitalChart = $("#contagios_hospital_chart");
-      $.ajax({
-        url: $contagiosHospitalChart.data("url"),
+        url: $casos_hospital_Chart.data("url"),
         success: function (data)
         {
-          var ctx = $contagiosHospitalChart[0].getContext("2d");
+          var ctx = $casos_hospital_Chart[0].getContext("2d");
           new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
               labels: data.labels,
-              datasets: data.datasets  
+              datasets: data.datasets_h  
             },
             options: {
               responsive: true,
@@ -159,23 +95,85 @@
               },
               title: {
                 display: true,
-                text: 'Pacientes Hospitalizados en Hospital El Pino'
+                fontSize: 16,
+                text: 'Hospital'
               },
               plugins: {
                 colorschemes: {
-                scheme: 'brewer.Paired12'
+                scheme: 'brewer.SetOne3'
+                }
+              }
+            }
+          });
+          var ctx2 = $casos_funcionarios_Chart[0].getContext("2d");
+          new Chart(ctx2, {
+            type: 'line',
+            data: {
+              labels: data.labels,
+              datasets: data.datasets_f  
+            },
+            options: {
+              responsive: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0
+                  }
+                }]
+              },
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                fontSize: 16,
+                text: 'Funcionarios'
+              },
+              plugins: {
+                colorschemes: {
+                  scheme: 'brewer.SetOne3'
+                }
+              }
+            }
+        });
+        var ctx3 = $camasHospitalChart[0].getContext("2d");
+          new Chart(ctx3, {
+            type: 'line',
+            data: {
+              labels: data.labels,
+              datasets: data.datasets
+            },
+            options: {
+              responsive: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0
+                  }
+                }]
+              },
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                fontSize: 16,
+                text: 'Hospitalización'
+              },
+              plugins: {
+                colorschemes: {
+                  scheme: 'brewer.SetOne3'
                 }
               }
             }
           });
         }
       });
-    
     });
   </script>
 
   {% if user.is_staff %}
-    <a class="btn btn-primary btn-lg" href="/estadistica/create/" role="button">Agregar</a>
-    <a class="btn btn-primary btn-lg" href="/estadistica/list/" role="button">Listar</a>
-    {% endif %}
+    <a class="btn btn-primary btn-lg" href="/estadistica/list/" role="button">Datos Hospital</a>
+  {% endif %}
+  <a class="btn btn-primary btn-lg" href="/estadisticas_nacionales/" role="button">Nacional</a>
 {% endblock %}

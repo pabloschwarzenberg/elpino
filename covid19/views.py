@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 from django.conf import settings
 from django.shortcuts import redirect
+from covid19.models import Usuario
 
 class CustomLoginRequiredMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
@@ -31,7 +32,11 @@ class AboutView(CustomLoginRequiredMixin,TemplateView):
 class HomeNoticiasView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
-        return render(request, 'noticias.html', {'noticias': Noticia.noticias.all()})
+        return render(request, 'noticias.html', {'noticias': Noticia.noticias.all().order_by("-fecha")})
+
+class HomeEstadisticasNacionalesView(CustomLoginRequiredMixin,TemplateView):
+    def get(self, request, **kwargs):
+        return render(request, 'estadisticas_nacionales.html')
 
 class HomeEstadisticasView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
@@ -50,7 +55,7 @@ class HomeEstadisticasListView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         try:
-            return render(request, 'estadisticas_list.html', {'estadisticas': Estadistica.estadisticas.order_by('-fecha')})
+            return render(request, 'estadisticas_list.html', {'estadisticas': Estadistica.estadisticas.order_by('fecha')})
         except:
             return render(request, 'estadisticas_list.html', {'estadisticas': []})   
 
@@ -58,19 +63,19 @@ class HomeAlgoritmosView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
-        {'documentos': Documento.documentos.filter(tipo=1),'titulo': 'Flujogramas', 'tipo':1})
+        {'documentos': Documento.documentos.filter(tipo=1).order_by('-fecha'),'titulo': 'Flujogramas', 'tipo':1})
 
 class HomeBibliotecaView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
-        {'documentos': Documento.documentos.filter(tipo=0), 'titulo': 'Biblioteca','tipo':0})
+        {'documentos': Documento.documentos.all().order_by('-fecha'), 'titulo': 'Biblioteca','tipo':0})
 
 class HomeVideosView(CustomLoginRequiredMixin,TemplateView):
     #permission_required='puede_buscar_cursos'
     def get(self, request, **kwargs):
         return render(request, 'biblioteca.html',
-        {'documentos': Documento.documentos.filter(tipo=2), 'titulo': 'Videos','tipo':2})
+        {'documentos': Documento.documentos.filter(tipo=2).order_by('-fecha'), 'titulo': 'Videos','tipo':2})
 
 class DetalleNoticiaView(CustomLoginRequiredMixin,TemplateView):
     def get(self, request, **kwargs):
@@ -82,9 +87,14 @@ class NoticiaCreate(CustomLoginRequiredMixin,CreateView):
     template_name='./noticia_form.html'
     fields = ['fecha','titulo','imagen','descripcion']
     
+    def form_valid(self,form):
+        autor=Usuario.objects.get(username=self.request.user)
+        form.instance.autor=autor.nombre+" "+autor.apellido_paterno
+        return super().form_valid(form)
+
     def get_form(self, form_class=None):
         form = super(NoticiaCreate, self).get_form(form_class)
-        form.fields['fecha'].input_formats=['%m/%d/%Y %H:%M %p']
+        form.fields['fecha'].input_formats=['%d/%m/%Y %H:%M %p']
         form.fields['fecha'].widget = forms.DateTimeInput(attrs={
             'class': 'datetimepicker-input',
             'data-target': '#datetimepicker1'})
@@ -147,8 +157,6 @@ class DocumentoCreate(CustomLoginRequiredMixin,DocumentValidationMixin,CreateVie
 
     def get_form(self, form_class=None):
         form = super(DocumentoCreate, self).get_form(form_class)
-        form.fields['tipo'].widget.attrs={'disabled':'disabled'}
-        form.fields['tipo'].initial=self.kwargs["tipo"]
 
         return form
 
@@ -223,23 +231,21 @@ class EstadisticaFormatMixin():
             'class': 'datepicker',
             'autocomplete': 'off'})
         form.fields['fecha'].input_formats=['%d/%m/%Y']
-        form.fields['contagios_Chile'].label = "Cantidad de contagios en Chile"
-        form.fields['confirmados_Hospital'].label = "Cantidad de Casos Confirmados en el Hospital"
-        form.fields['examenes_Hospital'].label = "Cantidad de Exámenes tomados a la fecha en el Hospital"
-        form.fields['hospital_UPC'].label = "Pacientes hospitalizados en UPC"
+        form.fields['confirmados_Hospital'].label = "Cantidad de Contagiados"
+        form.fields['examenes_Hospital'].label = "Test PCR tomados"
         form.fields['hospital_VMI'].label = "Pacientes hospitalizados en VMI"
-        form.fields['hospital_BASICA'].label = "Pacientes hospitalizados en Cama Básica"
         form.fields['hospital_TOTAL'].label = "Total de Hospitalizados COVID-19 hoy"
-        form.fields['hospital_contagios'].label = "Funcionarios Contagiados"
-        form.fields['hospital_recuperados'].label = "Funcionarios Recuperados"
+        form.fields['funcionarios_contagiados'].label = "Funcionarios Contagiados"
+        form.fields['funcionarios_PCR'].label = "Test PCR a Funcionarios"
 
         return form
 
 class EstadisticaCreate(CustomLoginRequiredMixin,EstadisticaFormatMixin,CreateView):
     model = Estadistica
     template_name='./estadistica_form.html'
-    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
-    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
+    fields = ['fecha', 'confirmados_Hospital','examenes_Hospital',
+    'hospital_VMI','hospital_TOTAL',
+    'funcionarios_contagiados', 'funcionarios_PCR']
 
     def get_form(self, form_class=None):
         form = super(EstadisticaCreate, self).get_form(form_class)
@@ -248,8 +254,9 @@ class EstadisticaCreate(CustomLoginRequiredMixin,EstadisticaFormatMixin,CreateVi
 class EstadisticaUpdate(CustomLoginRequiredMixin,EstadisticaFormatMixin,UpdateView):
     model = Estadistica
     template_name='./estadistica_form.html'
-    fields = ['fecha', 'contagios_Chile','confirmados_Hospital','examenes_Hospital','hospital_UPC','hospital_VMI','hospital_BASICA',
-    'hospital_TOTAL', 'hospital_contagios', 'hospital_recuperados']
+    fields = ['fecha', 'confirmados_Hospital','examenes_Hospital',
+    'hospital_VMI','hospital_TOTAL',
+    'funcionarios_contagiados', 'funcionarios_PCR']
 
     def get_form(self, form_class=None):
         form = super(EstadisticaUpdate, self).get_form(form_class)
@@ -260,53 +267,67 @@ class EstadisticaDelete(CustomLoginRequiredMixin,DeleteView):
     template_name='./estadistica_confirm_delete.html'
     success_url = reverse_lazy('estadistica_list')
 
-
-def casos_chile_chart(request):
-    labels = []
-    dataset1 = []
-    data = []
-    dataset2 = []
-    data2 = []
-
-    queryset = Estadistica.estadisticas.order_by('-fecha')[:4]
-    for dato in queryset:
-        labels.append(dato.fecha.strftime("%d-%m"))
-        data.append(dato.contagios_Chile)
-        data2.append(dato.confirmados_Hospital)
-    data.reverse()
-    dataset1.append({
-        'label': 'Casos en Chile',
-        'data': data
-    })
-    data2.reverse()
-    dataset2.append({
-        'label': 'Casos en Hospital El Pino',
-        'data': data2
-    })
-    labels.reverse()
-    return JsonResponse(data={
-        'labels': labels,
-        'dataset1': dataset1,
-        'dataset2': dataset2
-    })
-
 def casos_hospital_chart(request):
     datasets = []
+    datasets_h=[]
+    datasets_f=[]
 
-    queryset = Estadistica.estadisticas.order_by('-fecha')[:4]
-    labels = [ "UPC", "VMI", "Cama Básica", "Total Día" ]
+    queryset = Estadistica.estadisticas.order_by('-fecha')[:7]
+    labels = []
+    data_vmi=[]
+    data_total=[]
+    data_confirmados_Hospital=[]
+    data_examenes_Hospital=[]
+    data_funcionarios_contagiados=[]
+    data_funcionarios_PCR=[]
     for dato in queryset:
-        data = []
-        data.append(dato.hospital_UPC)
-        data.append(dato.hospital_VMI)
-        data.append(dato.hospital_BASICA)
-        data.append(dato.hospital_TOTAL)
-        datasets.append({
-            'label': dato.fecha.strftime("%d-%m"),
-            'data': data
-        })
-    datasets.reverse()
+        labels.append(dato.fecha.strftime("%d-%m"))
+        data_vmi.append(dato.hospital_VMI)
+        data_total.append(dato.hospital_TOTAL)
+        data_confirmados_Hospital.append(dato.confirmados_Hospital)
+        data_examenes_Hospital.append(dato.examenes_Hospital)
+        data_funcionarios_contagiados.append(dato.funcionarios_contagiados)
+        data_funcionarios_PCR.append(dato.funcionarios_PCR)
+    labels.reverse()
+    data_vmi.reverse()
+    data_total.reverse()
+    data_confirmados_Hospital.reverse()
+    data_examenes_Hospital.reverse()
+    data_funcionarios_contagiados.reverse()
+    data_funcionarios_PCR.reverse()
+    datasets.append({
+        'label': 'VMI',
+        'fill': False,
+        'data': data_vmi
+    })
+    datasets.append({
+        'label': 'Total',
+        'fill' : False,
+        'data': data_total
+    })
+    datasets_h.append({
+        'label': 'Total Casos',
+        'fill' : False,
+        'data': data_confirmados_Hospital
+    })
+    datasets_h.append({
+        'label': 'Test PCR',
+        'fill': False,
+        'data': data_examenes_Hospital
+    })
+    datasets_f.append({
+        'label': 'Casos Funcionarios',
+        'fill' : False,
+        'data': data_funcionarios_contagiados
+    })
+    datasets_f.append({
+        'label': 'Test PCR',
+        'fill': False,
+        'data': data_funcionarios_PCR
+    })
     return JsonResponse(data={
         'labels': labels,
         'datasets': datasets,
+        'datasets_h': datasets_h,
+        'datasets_f': datasets_f
     })
